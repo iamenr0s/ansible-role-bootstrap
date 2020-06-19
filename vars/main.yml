@@ -1,2 +1,13 @@
 ---
 # vars file for bootstrap
+bootstrap_packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+
+bootstrap_kernel_parameters:
+  - { name: net.bridge.bridge-nf-call-ip6tables, value: 1, file: /etc/sysctl.d/k8s.conf}
+  - { name: net.bridge.bridge-nf-call-iptables, value: 1, file: /etc/sysctl.d/k8s.conf }
+  - { name: vm.swappiness, value: 0 }

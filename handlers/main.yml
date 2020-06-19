@@ -1,2 +1,7 @@
 ---
 # handlers file for bootstrap
+- name: restart systemd-logind
+  service:
+    name: systemd-logind
+    state: restarted
+  when: ansible_service_mgr == 'systemd'
