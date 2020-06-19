@@ -9,7 +9,7 @@ galaxy_info:
       - focal
       - bionic
   galaxy_tags: 
-    - raspberry-pi
+    - raspberrypi
     - arm64
     - bootstrap
     - playbook
