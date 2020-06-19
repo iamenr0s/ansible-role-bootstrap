@@ -3,7 +3,6 @@
 
 - name: Upgrade distribution
   apt:
-    state: latest
     update_cache: yes
     upgrade: dist
   register: upgrade_distribution
