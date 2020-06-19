@@ -42,7 +42,7 @@
 - name: Install bootstrap packages
   apt:
     name: "{{ item }}"
-    state: latest
+    state: present
   loop: "{{ bootstrap_packages }}"
 
 - name: Set kernel parameters
