@@ -1,7 +1,6 @@
-Role Name
+Bootstrap
 =========
-
-A brief description of the role goes here.
+Prepare your Raspberry (64 bit architecture) to be managed by Ansible.
 
 Requirements
 ------------
