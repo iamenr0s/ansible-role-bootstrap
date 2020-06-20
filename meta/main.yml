@@ -8,7 +8,7 @@ galaxy_info:
     versions:
       - focal
       - bionic
-  galaxy_tags: 
+  galaxy_tags:
     - raspberrypi
     - arm64
     - bootstrap
