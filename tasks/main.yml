@@ -27,14 +27,22 @@
 - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
   wait_for:
     delay: 10
-    host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+    host: "{{ (ansible_ssh_host|default(inventory_hostname)|default(ansible_host)) }}"
     port: 22
     search_regex: OpenSSH
   connection: local
 
+- name: Generate /etc/hosts file
+  template:
+    src: etc/hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Set hostname
   hostname:
-    name: "{{ hostname }}"
+    name: "{{ hostvars[inventory_hostname].inventory_hostname }}"
   notify:
     - restart systemd-logind
 
