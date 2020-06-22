@@ -1,12 +1,23 @@
 ---
 dependency:
   name: galaxy
+lint: |
+  yamllint molecule/default/converge.yml
+  ansible-lint molecule/default/converge.yml
 driver:
   name: docker
 platforms:
-  - name: instance
-    image: docker.io/pycontribs/centos:7
-    pre_build_image: true
+  - name: bootstrap-ubuntu-focal
+    image: ubuntu:focal
+    command: uname -a
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /usr/bin/qemu-aarch64-static:/usr/bin/qemu-aarch64-static:ro
+    tmpfs:
+      - /tmp
+      - /run
+    privileged: yes
+    pre_build_image: yes
 provisioner:
   name: ansible
 verifier:
