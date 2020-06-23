@@ -2,6 +2,5 @@
 - name: Converge
   hosts: all
   gather_facts: no
-  tasks:
   roles:
-    - role: ansible-role-bootstrap
+    - {role: ansible-role-bootstrap }
