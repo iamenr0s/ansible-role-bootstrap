@@ -1,4 +1,6 @@
-Bootstrap
+[![Build Status](https://travis-ci.com/enr0s/ansible-role-bootstrap.svg?branch=master)](https://travis-ci.com/enr0s/ansible-role-bootstrap)
+
+Anible Role Bootstrap
 =========
 Prepare your Raspberry PI (64 bit architecture) to be managed by Ansible.
 
