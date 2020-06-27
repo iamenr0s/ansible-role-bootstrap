@@ -2,8 +2,9 @@
 dependency:
   name: galaxy
 lint: |
-  yamllint molecule/default/converge.yml
-  ansible-lint molecule/default/converge.yml
+  yamllint .
+  ansible-lint
+  flake8
 driver:
   name: docker
 platforms:
