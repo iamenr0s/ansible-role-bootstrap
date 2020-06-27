@@ -1,6 +1,6 @@
 Bootstrap
 =========
-Prepare your Raspberry (64 bit architecture) to be managed by Ansible.
+Prepare your Raspberry PI (64 bit architecture) to be managed by Ansible.
 
 
 Role Variables
