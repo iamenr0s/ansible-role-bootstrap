@@ -1,6 +1,5 @@
 ---
 # tasks file for bootstrap
-
 - name: Upgrade distribution
   apt:
     update_cache: yes
@@ -8,12 +7,10 @@
   register: upgrade_distribution
   retries: 5
   until: upgrade_distribution is succeeded
-
 - name: Check if a reboot is needed
   stat:
     path: /var/run/reboot-required
   register: reboot_required_file
-
 - name: Reboot the box if kernel updated/installed
   reboot:
     msg: "Reboot initiated by Ansible for kernel updates"
@@ -25,7 +22,6 @@
   when: 
     - reboot_required_file.stat.exists
     - run_not_in_container
-
 - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
   wait_for:
     delay: 10
@@ -34,7 +30,6 @@
     search_regex: OpenSSH
   connection: local
   when: run_not_in_container
-
 - name: Generate /etc/hosts file
   template:
     src: etc/hosts.j2
@@ -43,30 +38,25 @@
     group: root
     mode: 0644
   when: run_not_in_container
-
 - name: Set hostname
   hostname:
     name: "{{ hostvars[inventory_hostname].inventory_hostname }}"
   notify:
     - restart systemd-logind
-
 - name: Install bootstrap packages
   apt:
     name: "{{ item }}"
     state: present
   loop: "{{ bootstrap_packages }}"
-
 - name: Disable SWAP
   shell: |
     swapoff -a
   changed_when: false
-
 - name: Disable SWAP
   replace:
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
     replace: '# \1'
-
 - name: Set kernel parameters
   sysctl:
     name: "{{ item.name }}"
