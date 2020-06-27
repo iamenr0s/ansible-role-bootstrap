@@ -8,7 +8,7 @@ Role Variables
 
 run_not_in_container - the variable is used to skip some tasks during molecule test. For example, the /etc/hosts file is crucial for Docker's linking system and it should only be manipulated manually at the image level, rather than the container level.
 
-[https://docs.docker.com/network/links/#updating-the-etchosts-file](link_to_documentation)
+[https://docs.docker.com/network/links/#updating-the-etchosts-file]
 
 bootstrap_packages: list of initial packages to be installed
 
@@ -35,4 +35,4 @@ Apache-2.0
 Author Information
 ------------------
 
-[https://blog.enros.me](enr0s)
+[https://blog.enros.me]
