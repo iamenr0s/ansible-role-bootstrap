@@ -1,5 +1,4 @@
 ---
 - hosts: localhost
-  remote_user: root
   roles:
-    - ansible-role-bootstrap
+    - { role: ansible-role-bootstrap, run_not_in_container: True }

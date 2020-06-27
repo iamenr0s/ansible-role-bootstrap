@@ -6,22 +6,33 @@ Prepare your Raspberry (64 bit architecture) to be managed by Ansible.
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+run_not_in_container - the variable is used to skip some tasks during molecule test. For example, the /etc/hosts file is crucial for Docker's linking system and it should only be manipulated manually at the image level, rather than the container level.
 
+(link to documentation)[https://docs.docker.com/network/links/#updating-the-etchosts-file]
+
+bootstrap_packages: list of initial packages to be installed
+
+bootstrap_kernel_parameters: enable/disable kernel parameters
 
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+  ---
+  - hosts: all
+    roles:
+      - {role: ansible-role-bootstra, run_not_in_container: True }
+```
 
 License
 -------
 
-BSD
+Apache-2.0
+
 
 Author Information
 ------------------
+
+(enr0s)[https://blog.enros.me]
