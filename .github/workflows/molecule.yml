@@ -24,4 +24,5 @@ jobs:
       - name: molecule
         uses: robertdebock/molecule-action@2.3.4
         with:
+          image: geerlingguy/docker-ubuntu2004-ansible:latest
           command: test
