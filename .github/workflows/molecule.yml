@@ -2,7 +2,7 @@ on: push
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: geerlingguy/docker-ubuntu2004-ansible:latest
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -15,7 +15,7 @@ jobs:
   test:
     needs:
       - lint
-    runs-on: ubuntu-latest
+    runs-on: geerlingguy/docker-ubuntu2004-ansible:latest
     steps:
       - name: checkout
         uses: actions/checkout@v2
