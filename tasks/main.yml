@@ -50,7 +50,7 @@
   shell: |
     swapoff -a
   register: disable_swap
-  changed_when: disable_swap.rc != 1 and disable_swap.rc != 0
+  changed_when: disable_swap.rc in [0,255]
 - name: Disable SWAP
   replace:
     path: /etc/fstab
