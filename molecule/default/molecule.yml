@@ -4,7 +4,6 @@ dependency:
 lint: |
   yamllint .
   ansible-lint
-  flake8
 driver:
   name: docker
 platforms:
