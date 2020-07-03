@@ -49,8 +49,7 @@
 - name: Disable SWAP
   shell: |
     swapoff -a
-  register: disable_swap
-  changed_when: disable_swap.rc in [0,255]
+  when: run_not_in_container
 - name: Disable SWAP
   replace:
     path: /etc/fstab
