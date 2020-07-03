@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/enr0s/ansible-role-bootstrap.svg?branch=master)](https://travis-ci.com/enr0s/ansible-role-bootstrap)
 ![.github/workflows/molecule.yml](https://github.com/enr0s/ansible-role-bootstrap/workflows/.github/workflows/molecule.yml/badge.svg)
+[![quality](https://img.shields.io/ansible/quality/49395)](https://galaxy.ansible.com/enr0s/ansible_role_bootstrap)
+![LICENSE](https://img.shields.io/github/license/enr0s/ansible-role-bootstrap)
 
 Anible Role Bootstrap
 =========
