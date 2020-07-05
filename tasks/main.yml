@@ -49,7 +49,7 @@
 - name: Disable SWAP
   shell: |
     swapoff -a
-  when: run_not_in_container
+  when: run_not_in_container and ansible_swaptotal_mb > 0
 - name: Disable SWAP
   replace:
     path: /etc/fstab
