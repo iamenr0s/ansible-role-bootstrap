@@ -8,7 +8,7 @@ driver:
   name: docker
 platforms:
   - name: bootstrap-ubuntu-focal
-    image: ${MOLECULE_DISTRO:-geerlingguy/docker-ubuntu2004-ansible:latest}
+    image: ${MOLECULE_DISTRO:-enros/docker-ansible-ubuntu2004:latest}
     #dockerfile: Dockerfile.j2
     command: ${MOLECULE_COMMAND:-/lib/systemd/systemd}
     volumes:
