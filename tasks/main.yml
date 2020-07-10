@@ -49,8 +49,8 @@
 - name: Disable SWAP
   shell: |
     swapoff -a
-  when: run_not_in_container and ansible_swaptotal_mb > 0
-- name: Disable SWAP
+  when: ansible_swaptotal_mb > 0
+- name: Disable SWAP in /etc/fstab
   replace:
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
