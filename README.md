@@ -3,7 +3,7 @@
 [![quality](https://img.shields.io/ansible/quality/49604)](https://galaxy.ansible.com/enr0s/ansible-role-bootstrap)
 ![LICENSE](https://img.shields.io/github/license/enr0s/ansible-role-bootstrap)
 
-Anible Role Bootstrap
+Ansible Role Bootstrap
 =========
 Prepare your Raspberry PI (64 bit architecture) to be managed by Ansible.
 
