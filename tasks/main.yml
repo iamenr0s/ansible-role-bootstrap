@@ -55,6 +55,12 @@
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
     replace: '# \1'
+- name: Load kernel modules
+  modprobe:
+    name: "{{ item.name }}"
+    state: present
+    params: "{{ item.params | default(omit) }}"
+  loop: "{{ bootstrap_kernel_modules }}"
 - name: Set kernel parameters
   sysctl:
     name: "{{ item.name }}"
