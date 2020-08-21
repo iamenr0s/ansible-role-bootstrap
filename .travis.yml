@@ -13,7 +13,8 @@ install:
 - sudo dpkg -i vagrant_"$VAGRANT_VER"_x86_64.deb
 - sudo apt install qemu-kvm qemu-utils libvirt-bin libvirt0 libvirt-dev sshpass
 - vagrant plugin install vagrant-libvirt
-- pip install molecule=='3.0.6' molecule-vagrant docker python-vagrant paramiko ansible-lint yamllint travis-wait-improved
+- pip install molecule=='3.0.6' molecule-vagrant docker python-vagrant paramiko ansible-lint
+  yamllint travis-wait-improved
 - sudo chmod o+rwx /var/run/libvirt/libvirt-sock
 script:
 - ansible --version
@@ -23,4 +24,5 @@ script:
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
   slack:
-    secure: IboUgI8+kARmwx6YHMI6zoeXGmccpsWAUgII3oMsugLWOw6K+xdASGCb54GWZr4Nr6UONeBmw5BwnkzUNkyUfP8MdEt5HXPrYfl6Hwu7qXdo0qy2o+Uq2m66kupB+16vhUIVmva7JBi3QlM0zPEMxnHtGrqwHq9EepIL+iFQ7UYIplyn7Z/creKLPQpCzYshoBqVzhg8UHX/RvrCBBgZQru9wXay/R+YVbpMUAwoLWihWP3QmSw9FMV3NFbXaYEbDxn2qhpKhbUhtY+ujPPvcStvTU9TLXg5QrrvzdADs1rnJDjuqCGPoUoaguJuCP81ePsUDwoZ5dEwsG2HdbhF/CI7IQpvCpambFjaq/ZG1DyhIdbSH+WzRFB0ywecTFBVxCG2LFBt6sKqy4RETODHEDPTWlgC7lfOprWGHVsB3sqYvugpxj8mwJlHvUvnXBqJlxcOqys3Pn65zaq1lsT8mIXuRrZTDmh82Zx8wmc9gLAAVXSKVb1sEM5NgwlJU5w+kR+dPS+uhJfKtve2K/+MofLjjRapXaiwTOEUlt41pp9nxsvGn9pbsUHjnzd0D1XQL3fun4bsp8g8dfNd09dTnPm7R940Jm2IKe2MrxHLkbvZU4s5l4j7RbQi9vFYQCk0M+TYrhPyZAvXWxnqSsGLS5p5upP0a9yzmb/LqsdgLtQ=
+    rooms:
+      secure: grGSUjLWVKL1jR8dswOPHt72DbpmxvuQIQT5TR359yK5aRDja+8Zh5lUD7stCAwiiC7zTrWyklDRzXBo2sT7L2Hcz1ErW0awpQajm6NO9rNqzbP/yFZJndCG+2xaqksnVlRscEvhyIaq5Pdceau1ZY8CrtBHWSAP3xUWIqwbtmgquQnTZ0IQ48V4qh+s/mMGRQ/SZnx54lom9nVHoXCvDGr4JR72A4v/wzQMlZKMshW71XALQNGxyQpH0ayQxEaS233sdsjzjz9CA/NIEQuqUDd/inllKdpgyBCvVoSwwDB/9X8V1lHzMSlxdMMbX41RwVdXGA9LLqBHqcp625xRZfO3YCCusGG9yOiJ/s9z1ypNtClTvBsIlXc5Z4aTHIsc4a9Au80kUTg3DY1kNhs87IzgsAZxg2LYBedCuGz0p7xMoKB9Ug5GRJUCaDEt3dupz/EXmgcZYLfSoGyOwT//In9f1SmYROrK4/IUXnnSl9iX/tpUG7IsK16PYKbPgNTBNahy+o4DeMHcOI61NXyVEa03qA3MniYKBEzmc7sZx8aoPvbmCTFRW7n3UTquS1cYnNZ8lKZzYB5sUOly4WuI5h2j/WebZOdxztaymjp7i3PD+zMTTQC3iH0blrAn0RaZiAmqQaJ5HEwyeVo891VWxhOLz6heMeHj1IWNPdU9ewk=

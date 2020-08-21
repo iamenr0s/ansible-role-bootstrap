@@ -53,6 +53,7 @@
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
     replace: '# \1'
+    mode: 0664
 - name: Load kernel modules
   modprobe:
     name: "{{ item.name }}"
