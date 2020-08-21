@@ -19,7 +19,7 @@
     post_reboot_delay: 30
     reboot_timeout: 600
     test_command: uptime
-  when: reboot_required_file.stat.exists and run_not_in_container
+  when: reboot_required_file.stat.exists
 - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
   wait_for:
     delay: 10
@@ -27,7 +27,6 @@
     port: 22
     search_regex: OpenSSH
   connection: local
-  when: run_not_in_container
 - name: Generate /etc/hosts file
   template:
     src: etc/hosts.j2
@@ -35,7 +34,6 @@
     owner: root
     group: root
     mode: 0644
-  when: run_not_in_container
 - name: Set hostname
   hostname:
     name: "{{ hostvars[inventory_hostname].inventory_hostname }}"
@@ -49,7 +47,7 @@
 - name: Disable SWAP
   shell: |
     swapoff -a
-  when: run_not_in_container and ansible_swaptotal_mb > 0
+  when: ansible_swaptotal_mb > 0
 - name: Disable SWAP in /etc/fstab
   replace:
     path: /etc/fstab

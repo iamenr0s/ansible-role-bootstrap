@@ -1,29 +1,25 @@
 ---
+dist: bionic
 language: python
-python: "2.7"
-
-# Use the new container infrastructure
-sudo: false
-
-# Install ansible
-addons:
-  apt:
-    packages:
-    - python-pip
-
+python:
+- 3.6
+env:
+  global:
+  - VAGRANT_VER: 2.2.9
+  matrix:
+  - MOLECULE_DISTRO_BOX: enr0s/ubuntu-focal
 install:
-  # Install ansible
-  - pip install ansible
-
-  # Check ansible version
-  - ansible --version
-
-  # Create ansible.cfg with correct roles_path
-  - printf '[defaults]\nroles_path=../' >ansible.cfg
-
+- sudo add-apt-repository universe && sudo apt update
+- wget https://releases.hashicorp.com/vagrant/$VAGRANT_VER/vagrant_"$VAGRANT_VER"_x86_64.deb
+- sudo dpkg -i vagrant_"$VAGRANT_VER"_x86_64.deb
+- sudo apt install qemu-kvm qemu-utils libvirt-bin libvirt0 libvirt-dev sshpass
+- vagrant plugin install vagrant-libvirt
+- pip install molecule=='3.0.6' molecule-vagrant docker python-vagrant paramiko ansible-lint yamllint travis-wait-improved
+- sudo chmod o+rwx /var/run/libvirt/libvirt-sock
 script:
-  # Basic role syntax check
-  - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
-
+- ansible --version
+- molecule --version
+- printf '[defaults]\nroles_path=../' >ansible.cfg
+- travis-wait-improved --timeout 30m molecule test
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

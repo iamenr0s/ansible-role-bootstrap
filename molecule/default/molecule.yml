@@ -5,26 +5,25 @@ lint: |
   yamllint .
   ansible-lint
 driver:
-  name: docker
+  name: vagrant
+  provider:
+    name: libvirt
 platforms:
-  - name: bootstrap-ubuntu-focal
-    image: ${MOLECULE_DISTRO:-enros/docker-ansible-ubuntu2004:latest}
-    #dockerfile: Dockerfile.j2
-    command: ${MOLECULE_COMMAND:-/lib/systemd/systemd}
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-        #- /usr/bin/qemu-aarch64-static:/usr/bin/qemu-aarch64-static:ro
-    tmpfs:
-      - /tmp
-      - /run
-    privileged: yes
-    pre_build_image: yes
-    #service_manager: ${MOLECULE_SERVICE_MANAGER:-systemd}
+  - name: master
+    box: ${MOLECULE_DISTRO_BOX:-""}
+    memory: 1024
+    cpus: 2
+    provision: yes
 provisioner:
   name: ansible
+  env:
+    ANSIBLE_FORCE_COLOR: 'true'
+  options:
+    vvv: false
   inventory:
     group_vars:
       all:
-        run_not_in_container: False
+        ansible_ssh_user: vagrant
+        ansible_ssh_pass: vagrant
 verifier:
   name: ansible
