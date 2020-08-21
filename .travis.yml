@@ -1,4 +1,3 @@
----
 dist: bionic
 language: python
 python:
@@ -23,3 +22,5 @@ script:
 - travis-wait-improved --timeout 30m molecule test
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  slack:
+    secure: IboUgI8+kARmwx6YHMI6zoeXGmccpsWAUgII3oMsugLWOw6K+xdASGCb54GWZr4Nr6UONeBmw5BwnkzUNkyUfP8MdEt5HXPrYfl6Hwu7qXdo0qy2o+Uq2m66kupB+16vhUIVmva7JBi3QlM0zPEMxnHtGrqwHq9EepIL+iFQ7UYIplyn7Z/creKLPQpCzYshoBqVzhg8UHX/RvrCBBgZQru9wXay/R+YVbpMUAwoLWihWP3QmSw9FMV3NFbXaYEbDxn2qhpKhbUhtY+ujPPvcStvTU9TLXg5QrrvzdADs1rnJDjuqCGPoUoaguJuCP81ePsUDwoZ5dEwsG2HdbhF/CI7IQpvCpambFjaq/ZG1DyhIdbSH+WzRFB0ywecTFBVxCG2LFBt6sKqy4RETODHEDPTWlgC7lfOprWGHVsB3sqYvugpxj8mwJlHvUvnXBqJlxcOqys3Pn65zaq1lsT8mIXuRrZTDmh82Zx8wmc9gLAAVXSKVb1sEM5NgwlJU5w+kR+dPS+uhJfKtve2K/+MofLjjRapXaiwTOEUlt41pp9nxsvGn9pbsUHjnzd0D1XQL3fun4bsp8g8dfNd09dTnPm7R940Jm2IKe2MrxHLkbvZU4s5l4j7RbQi9vFYQCk0M+TYrhPyZAvXWxnqSsGLS5p5upP0a9yzmb/LqsdgLtQ=
