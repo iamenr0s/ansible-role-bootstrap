@@ -9,7 +9,7 @@ driver:
   provider:
     name: libvirt
 platforms:
-  - name: master
+  - name: bootstrap
     box: ${MOLECULE_DISTRO_BOX:-""}
     memory: 1024
     cpus: 2
