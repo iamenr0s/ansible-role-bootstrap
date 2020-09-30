@@ -1,5 +1,13 @@
 ---
 # tasks file for bootstrap
+- name: Enable memory control group subsystem
+  lineinfile:
+    path: /boot/firmware/cmdline.txt
+    regexp: "^(.*rootwait .*)(?<!{{ cmdline_options }})$"
+    line: '\1 {{ cmdline_options }}'
+    state: present
+    backrefs: yes
+  register: enable_cgroup
 - name: Upgrade distribution
   apt:
     update_cache: yes
@@ -19,7 +27,7 @@
     post_reboot_delay: 30
     reboot_timeout: 600
     test_command: uptime
-  when: reboot_required_file.stat.exists
+  when: reboot_required_file.stat.exists or enable_cgroup.changed
 - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
   wait_for:
     delay: 10
