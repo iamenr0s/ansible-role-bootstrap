@@ -1,10 +1,107 @@
 ---
-# This is an example playbook to execute Ansible tests.
 - name: Verify
   hosts: all
-  become: no
-  gather_facts: yes
-
+  become: true
+  gather_facts: true
   tasks:
-    - name: test connection
-      ping:
+    - name: Check if ansible user exists
+      user:
+        name: ansible
+        state: present
+      check_mode: true
+      register: ansible_user_check
+
+    - name: Verify ansible user was created
+      assert:
+        that:
+          - not ansible_user_check.changed
+        fail_msg: "Ansible user was not created"
+
+    - name: Check if rocky user was removed
+      user:
+        name: rocky
+        state: absent
+      check_mode: true
+      register: rocky_user_check
+
+    - name: Verify rocky user was removed
+      assert:
+        that:
+          - not rocky_user_check.changed
+        fail_msg: "Rocky user was not removed"
+
+    - name: Check SSH configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+      check_mode: true
+      register: ssh_config_check
+
+    - name: Verify SSH is configured securely
+      assert:
+        that:
+          - not ssh_config_check.changed
+        fail_msg: "SSH configuration is not secure"
+
+    - name: Check if swap is disabled in fstab
+      shell: grep -v '^#' /etc/fstab | grep swap || true
+      register: swap_check
+      changed_when: false
+
+    - name: Verify swap is disabled
+      assert:
+        that:
+          - swap_check.stdout == ""
+        fail_msg: "Swap is not disabled in /etc/fstab"
+
+    - name: Check kernel modules
+      shell: lsmod | grep br_netfilter
+      register: module_check
+      changed_when: false
+      failed_when: false
+
+    - name: Verify kernel modules are loaded
+      assert:
+        that:
+          - module_check.rc == 0
+        fail_msg: "Required kernel modules are not loaded"
+
+    - name: Check sysctl parameters
+      shell: sysctl vm.swappiness
+      register: sysctl_check
+      changed_when: false
+
+    - name: Verify sysctl parameters
+      assert:
+        that:
+          - "'vm.swappiness = 0' in sysctl_check.stdout"
+        fail_msg: "Sysctl parameters are not set correctly"
+
+    - name: Verify system uptime (indicates successful reboot handling)
+      shell: uptime
+      register: uptime_check
+      changed_when: false
+
+    - name: Display uptime for verification
+      debug:
+        msg: "System uptime: {{ uptime_check.stdout }}"
+
+    - name: Check if systemd services are running properly
+      service:
+        name: "{{ item }}"
+        state: started
+      check_mode: true
+      register: service_check
+      loop:
+        - "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+        - systemd-logind
+      failed_when: false
+
+    - name: Verify essential services are running
+      assert:
+        that:
+          - not item.changed
+        fail_msg: "Service {{ item.item }} is not running"
+      loop: "{{ service_check.results }}"
+      when: item.failed is not defined or not item.failed

@@ -5,25 +5,61 @@ lint: |
   yamllint .
   ansible-lint
 driver:
-  name: vagrant
-  provider:
-    name: libvirt
+  name: molecule-qemu
 platforms:
-  - name: bootstrap
-    box: ${MOLECULE_DISTRO_BOX:-""}
-    memory: 1024
-    cpus: 2
-    provision: yes
+  - name: "${MOLECULE_DISTRO:-ubuntu2204}"
+    image_arch: "${MOLECULE_ARCH:-x86_64}"  # or aarch64 for ARM
+    image_url: "${MOLECULE_IMAGE_URL:-https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img}"
+    image_checksum: "${MOLECULE_IMAGE_CHECKSUM:-sha256:https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS}"
+    image_format: qcow2
+    network_mode: user  # or vmnet-shared on macOS
+    network_ssh_port: "${MOLECULE_SSH_PORT:-2222}"
+    network_ssh_user: "${MOLECULE_SSH_USER:-ubuntu}"
+    vm_cpus: "${MOLECULE_CPUS:-2}"
+    vm_memory: "${MOLECULE_MEMORY:-2048}"
+    vm_disk: "${MOLECULE_DISK:-10G}"
+    disk_type: virtio-scsi
+    bios_type: uefi
+    groups:
+      - "${MOLECULE_GROUP:-debian_family}"
 provisioner:
   name: ansible
   env:
-    ANSIBLE_FORCE_COLOR: 'true'
+    ANSIBLE_FORCE_COLOR: "${MOLECULE_ANSIBLE_COLOR:-true}"
   options:
-    vvv: false
+    vvv: "${MOLECULE_VERBOSE:-false}"
   inventory:
     group_vars:
       all:
-        ansible_ssh_user: vagrant
-        ansible_ssh_pass: vagrant
+        ansible_user: "${MOLECULE_SSH_USER:-ubuntu}"
+        ansible_become: true
+        ansible_become_method: sudo
+      debian_family:
+        ansible_python_interpreter: /usr/bin/python3
+      rhel_family:
+        ansible_python_interpreter: /usr/bin/python3
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+      callback_whitelist: profile_tasks, timer, yaml
+      stdout_callback: yaml
+      host_key_checking: false
+    ssh_connection:
+      pipelining: false
 verifier:
   name: ansible
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy

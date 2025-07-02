@@ -1,7 +1,67 @@
 ---
 - name: Converge
   hosts: all
-  gather_facts: yes
-  become: yes
+  become: true
+  vars:
+    # Test-specific variables
+    bootstrap_packages_debian:
+      - curl
+      - vim
+      - htop
+      - net-tools
+    bootstrap_packages_rhel:
+      - curl
+      - vim
+      - htop
+      - net-tools
+    bootstrap_kernel_parameters:
+      - { name: vm.swappiness, value: 0 }
+      - { name: net.ipv4.ip_forward, value: 1 }
+      - { name: net.bridge.bridge-nf-call-ip6tables, value: 1, file: /etc/sysctl.d/k8s.conf }
+      - { name: net.bridge.bridge-nf-call-iptables, value: 1, file: /etc/sysctl.d/k8s.conf }
+    bootstrap_kernel_modules:
+      - { name: br_netfilter }
+      - { name: overlay }
+  pre_tasks:
+    # Create rocky user for testing (simulating initial connection)
+    - name: Create rocky user for testing
+      user:
+        name: rocky
+        password: "{{ 'rockylinux' | password_hash('sha512') }}"
+        shell: /bin/bash
+        create_home: true
+        groups: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
+        append: true
+
+    - name: Create .ssh directory for rocky user
+      file:
+        path: /home/rocky/.ssh
+        state: directory
+        owner: rocky
+        group: rocky
+        mode: '0700'
+
+    - name: Copy vagrant's authorized_keys to rocky user
+      copy:
+        src: /home/vagrant/.ssh/authorized_keys
+        dest: /home/rocky/.ssh/authorized_keys
+        owner: rocky
+        group: rocky
+        mode: '0600'
+        remote_src: true
+
+    - name: Install packages that might trigger kernel updates (for reboot testing)
+      package:
+        name: "{{ 'linux-generic' if ansible_os_family == 'Debian' else 'kernel' }}"
+        state: latest
+      register: kernel_update
+      when: ansible_env.MOLECULE_TEST_REBOOT is defined
+
   roles:
-    - { role: ansible-role-bootstrap }
+    - role: ansible-role-bootstrap-1
+
+  post_tasks:
+    - name: Verify system came back after reboot
+      debug:
+        msg: "System successfully rebooted and is responsive"
+      when: kernel_update is defined and kernel_update.changed
