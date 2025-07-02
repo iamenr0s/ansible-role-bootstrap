@@ -15,8 +15,8 @@ platforms:
     network_mode: user  # or vmnet-shared on macOS
     network_ssh_port: "${MOLECULE_SSH_PORT:-2222}"
     network_ssh_user: "${MOLECULE_SSH_USER:-ubuntu}"
-    vm_cpus: "${MOLECULE_CPUS:-2}"
-    vm_memory: "${MOLECULE_MEMORY:-2048}"
+    vm_cpus: 2
+    vm_memory: 2048
     vm_disk: "${MOLECULE_DISK:-10G}"
     disk_type: virtio-scsi
     bios_type: uefi
