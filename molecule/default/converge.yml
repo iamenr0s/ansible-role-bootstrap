@@ -58,7 +58,7 @@
       when: ansible_env.MOLECULE_TEST_REBOOT is defined
 
   roles:
-    - role: ansible-role-bootstrap-1
+    - role: ansible-role-bootstrap
 
   post_tasks:
     - name: Verify system came back after reboot

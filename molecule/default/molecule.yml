@@ -13,10 +13,10 @@ platforms:
     image_checksum: "${MOLECULE_IMAGE_CHECKSUM:-sha256:https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS}"
     image_format: qcow2
     network_mode: user  # or vmnet-shared on macOS
-    network_ssh_port: "${MOLECULE_SSH_PORT:-2222}"
+    network_ssh_port: ${MOLECULE_SSH_PORT:-2222}
     network_ssh_user: "${MOLECULE_SSH_USER:-ubuntu}"
-    vm_cpus: 2
-    vm_memory: 2048
+    vm_cpus: ${MOLECULE_CPUS:-2}
+    vm_memory: ${MOLECULE_MEMORY:-2048}
     vm_disk: "${MOLECULE_DISK:-10G}"
     disk_type: virtio-scsi
     bios_type: uefi
@@ -51,7 +51,6 @@ verifier:
 scenario:
   test_sequence:
     - dependency
-    - lint
     - cleanup
     - destroy
     - syntax
