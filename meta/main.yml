@@ -1,18 +1,36 @@
 galaxy_info:
   author: enr0s
-  description: Prepare your Raspberry (64 bit architecture) to be managed by Ansible.
+  description: Bootstrap role for multiple Linux distributions (Debian/Ubuntu and RHEL/Rocky/AlmaLinux)
   license: Apache-2.0
-  min_ansible_version: 2.8
+  min_ansible_version: "2.9"
   platforms:
   - name: Ubuntu
     versions:
       - focal
+      - jammy
       - bionic
+  - name: Debian
+    versions:
+      - bullseye
+      - bookworm
+  - name: EL
+    versions:
+      - "8"
+      - "9"
+  - name: Rocky
+    versions:
+      - "8.8"
+      - "9.2"
+
   galaxy_tags:
-    - raspberrypi
-    - arm64
     - bootstrap
-    - playbook
-    - ansible
+    - multi-os
+    - debian
     - ubuntu
+    - rhel
+    - rocky
+    - almalinux
+    - ansible
+    - ssh
+    - security
 dependencies: []

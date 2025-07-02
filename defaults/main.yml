@@ -1,3 +1,42 @@
 ---
 # defaults file for bootstrap
+
+# Memory cgroup options for different systems
 cmdline_options: "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
+cmdline_options_rhel: "cgroup_enable=memory swapaccount=1"
+
+# Default packages for different OS families
+bootstrap_packages_debian:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - software-properties-common
+  - openssh-server
+  - sudo
+  - vim
+  - htop
+  - net-tools
+
+bootstrap_packages_rhel:
+  - curl
+  - wget
+  - vim
+  - htop
+  - net-tools
+  - openssh-server
+  - sudo
+  - dnf-utils
+  - yum-utils
+
+# Kernel parameters
+bootstrap_kernel_parameters:
+  - { name: net.bridge.bridge-nf-call-ip6tables, value: 1, file: /etc/sysctl.d/k8s.conf }
+  - { name: net.bridge.bridge-nf-call-iptables, value: 1, file: /etc/sysctl.d/k8s.conf }
+  - { name: vm.swappiness, value: 0 }
+  - { name: net.ipv4.ip_forward, value: 1 }
+
+# Kernel modules
+bootstrap_kernel_modules:
+  - { name: br_netfilter }
+  - { name: overlay }

@@ -1,7 +1,13 @@
 ---
 # handlers file for bootstrap
+
 - name: restart systemd-logind
   service:
     name: systemd-logind
     state: restarted
   when: ansible_service_mgr == 'systemd'
+
+- name: restart sshd
+  service:
+    name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+    state: restarted
