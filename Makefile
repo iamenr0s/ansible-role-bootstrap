@@ -163,7 +163,7 @@ test-fedora42:
 	@echo "$(GREEN)Testing Fedora 42 with QEMU...$(NC)"
 	MOLECULE_DISTRO=fedora42 \
 	MOLECULE_IMAGE_URL=https://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-42-1.1.x86_64.qcow2 \	
-	MOLECULE_IMAGE_CHECKSUM=sha256:hhttps://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-42-1.1-x86_64-CHECKSUM \
+	MOLECULE_IMAGE_CHECKSUM=sha256:https://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-42-1.1-x86_64-CHECKSUM \
 	MOLECULE_SSH_USER=fedora \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
