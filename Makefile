@@ -103,7 +103,7 @@ test-debian12:
 	MOLECULE_IMAGE_CHECKSUM=sha512:https://cloud.debian.org/images/cloud/bookworm/latest/SHA512SUMS \
 	MOLECULE_SSH_USER=debian MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule -v test
 
 test-debian11:
 	@echo "$(GREEN)Testing Debian 11 with QEMU...$(NC)"
@@ -114,11 +114,20 @@ test-debian11:
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
+test-rocky10:
+	@echo "$(GREEN)Testing Rocky Linux 10 with QEMU...$(NC)"
+	MOLECULE_DISTRO=rocky10 \
+	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/10/images/x86_64/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2 \
+	MOLECULE_IMAGE_CHECKSUM=sha256:20e771c654724e002c32fb92a05fdfdd7ac878c192f50e2fc21f53e8f098b8f9 \
+	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
+	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
+	molecule test
+
 test-rocky9:
 	@echo "$(GREEN)Testing Rocky Linux 9 with QEMU...$(NC)"
 	MOLECULE_DISTRO=rocky9 \
 	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
-	MOLECULE_IMAGE_CHECKSUM=sha256:https://download.rockylinux.org/pub/rocky/9/images/x86_64/CHECKSUM \
+	MOLECULE_IMAGE_CHECKSUM=sha256:2c72815bb83cadccbede4704780e9b52033722db8a45c3fb02130aa380690a3d \
 	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
@@ -127,7 +136,7 @@ test-rocky8:
 	@echo "$(GREEN)Testing Rocky Linux 8 with QEMU...$(NC)"
 	MOLECULE_DISTRO=rocky8 \
 	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/8/images/x86_64/Rocky-8-GenericCloud-Base.latest.x86_64.qcow2 \
-	MOLECULE_IMAGE_CHECKSUM=sha256:https://download.rockylinux.org/pub/rocky/8/images/x86_64/CHECKSUM \
+	MOLECULE_IMAGE_CHECKSUM=sha256:e56066c58606191e96184de9a9183a3af33c59bcbd8740d8b10ca054a7a89c14 \
 	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test

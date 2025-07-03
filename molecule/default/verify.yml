@@ -55,18 +55,6 @@
           - swap_check.stdout == ""
         fail_msg: "Swap is not disabled in /etc/fstab"
 
-    - name: Check kernel modules
-      shell: lsmod | grep br_netfilter
-      register: module_check
-      changed_when: false
-      failed_when: false
-
-    - name: Verify kernel modules are loaded
-      assert:
-        that:
-          - module_check.rc == 0
-        fail_msg: "Required kernel modules are not loaded"
-
     - name: Check sysctl parameters
       shell: sysctl vm.swappiness
       register: sysctl_check

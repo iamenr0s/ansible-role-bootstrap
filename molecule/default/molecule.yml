@@ -8,44 +8,29 @@ driver:
   name: molecule-qemu
 platforms:
   - name: "${MOLECULE_DISTRO:-ubuntu2204}"
-    image_arch: "${MOLECULE_ARCH:-x86_64}"  # or aarch64 for ARM
-    image_url: "${MOLECULE_IMAGE_URL:-https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img}"
-    image_checksum: "${MOLECULE_IMAGE_CHECKSUM:-sha256:https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS}"
-    image_format: qcow2
-    network_mode: user  # or vmnet-shared on macOS
-    network_ssh_port: ${MOLECULE_SSH_PORT:-2222}
-    network_ssh_user: "${MOLECULE_SSH_USER:-ubuntu}"
-    vm_cpus: ${MOLECULE_CPUS:-2}
-    vm_memory: ${MOLECULE_MEMORY:-2048}
-    vm_disk: "${MOLECULE_DISK:-10G}"
-    disk_type: virtio-scsi
-    bios_type: uefi
+    image_url: "${MOLECULE_IMAGE_URL}"
+    image_checksum: "${MOLECULE_IMAGE_CHECKSUM}"
+    network_ssh_port: 2223
+    vm_cpus: 4 # optional, default is 1
+    vm_memory: 2048 # optional, default is 512
+    vm_disk: 20G # optional, default is 8G
     groups:
       - "${MOLECULE_GROUP:-debian_family}"
+    cloud_config:
+      user_data: |
+        #cloud-config
+        packages:
+          - python3
+          - python3-pip
+        package_update: true
+        runcmd:
+          - [ sh, -c, "alternatives --install /usr/bin/python python /usr/bin/python3 1 || ln -sf /usr/bin/python3 /usr/bin/python || true" ]
 provisioner:
   name: ansible
   env:
     ANSIBLE_FORCE_COLOR: "${MOLECULE_ANSIBLE_COLOR:-true}"
   options:
     vvv: "${MOLECULE_VERBOSE:-false}"
-  inventory:
-    group_vars:
-      all:
-        ansible_user: "${MOLECULE_SSH_USER:-ubuntu}"
-        ansible_become: true
-        ansible_become_method: sudo
-      debian_family:
-        ansible_python_interpreter: /usr/bin/python3
-      rhel_family:
-        ansible_python_interpreter: /usr/bin/python3
-  config_options:
-    defaults:
-      interpreter_python: auto_silent
-      callback_whitelist: profile_tasks, timer, yaml
-      stdout_callback: yaml
-      host_key_checking: false
-    ssh_connection:
-      pipelining: false
 verifier:
   name: ansible
 scenario:

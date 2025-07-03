@@ -1,5 +1,7 @@
 galaxy_info:
-  author: enr0s
+  role_name: ansible_role_bootstrap
+  namespace: iamenr0s
+  author: iamenr0s
   description: Bootstrap role for multiple Linux distributions (Debian/Ubuntu and RHEL/Rocky/AlmaLinux)
   license: Apache-2.0
   min_ansible_version: "2.9"

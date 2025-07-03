@@ -35,16 +35,6 @@
     group: ansible
     mode: '0700'
 
-- name: Copy authorized keys to ansible user
-  copy:
-    src: /home/rocky/.ssh/authorized_keys
-    dest: /home/ansible/.ssh/authorized_keys
-    owner: ansible
-    group: ansible
-    mode: '0600'
-    remote_src: true
-  ignore_errors: true
-
 # Configure and secure SSH
 - name: Configure SSH daemon
   lineinfile:
@@ -218,11 +208,3 @@
     value: "{{ item.value }}"
   loop: "{{ bootstrap_kernel_parameters }}"
 
-# Remove rocky user at the end
-- name: Remove rocky user
-  user:
-    name: rocky
-    state: absent
-    remove: true
-    force: true
-  ignore_errors: true
