@@ -84,7 +84,8 @@ test-ubuntu2404:
 	MOLECULE_DISTRO=ubuntu2404 \
 	MOLECULE_IMAGE_URL=https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img \
 	MOLECULE_IMAGE_CHECKSUM=sha256:https://cloud-images.ubuntu.com/releases/24.04/release/SHA256SUMS \
-	MOLECULE_SSH_USER=ubuntu MOLECULE_GROUP=debian_family \
+	MOLECULE_SSH_USER=ubuntu \
+	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
@@ -93,7 +94,8 @@ test-ubuntu2204:
 	MOLECULE_DISTRO=ubuntu2204 \
 	MOLECULE_IMAGE_URL=https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img \
 	MOLECULE_IMAGE_CHECKSUM=sha256:https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS \
-	MOLECULE_SSH_USER=ubuntu MOLECULE_GROUP=debian_family \
+	MOLECULE_SSH_USER=ubuntu \
+	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
@@ -102,7 +104,8 @@ test-debian12:
 	MOLECULE_DISTRO=debian12 \
 	MOLECULE_IMAGE_URL=https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha512:https://cloud.debian.org/images/cloud/bookworm/latest/SHA512SUMS \
-	MOLECULE_SSH_USER=debian MOLECULE_GROUP=debian_family \
+	MOLECULE_SSH_USER=debian \
+	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule -v test
 
@@ -111,7 +114,8 @@ test-debian11:
 	MOLECULE_DISTRO=debian11 \
 	MOLECULE_IMAGE_URL=https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha512:https://cloud.debian.org/images/cloud/bullseye/latest/SHA512SUMS \
-	MOLECULE_SSH_USER=debian MOLECULE_GROUP=debian_family \
+	MOLECULE_SSH_USER=debian \
+	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
@@ -120,7 +124,8 @@ test-rocky10:
 	MOLECULE_DISTRO=rocky10 \
 	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/10/images/x86_64/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha256:20e771c654724e002c32fb92a05fdfdd7ac878c192f50e2fc21f53e8f098b8f9 \
-	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
+	MOLECULE_SSH_USER=rocky \
+	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
@@ -129,7 +134,8 @@ test-rocky9:
 	MOLECULE_DISTRO=rocky9 \
 	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha256:2c72815bb83cadccbede4704780e9b52033722db8a45c3fb02130aa380690a3d \
-	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
+	MOLECULE_SSH_USER=rocky \
+	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
@@ -138,10 +144,31 @@ test-almalinux10:
 	MOLECULE_DISTRO=almalinux10 \
 	MOLECULE_IMAGE_URL=https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha256:https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM \
-	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
+	MOLECULE_SSH_USER=almalinux \
+	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
+test-almalinux9:
+	@echo "$(GREEN)Testing AlmaLinux 9 with QEMU...$(NC)"
+	MOLECULE_DISTRO=almalinux9 \
+	MOLECULE_IMAGE_URL=https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2 \
+	MOLECULE_IMAGE_CHECKSUM=sha256:https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/CHECKSUM \
+	MOLECULE_SSH_USER=almalinux \
+	MOLECULE_GROUP=rhel_family \
+	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
+	molecule test
+
+test-fedora42:
+	@echo "$(GREEN)Testing Fedora 42 with QEMU...$(NC)"
+	MOLECULE_DISTRO=fedora42 \
+	MOLECULE_IMAGE_URL=https://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-42-1.1.x86_64.qcow2 \	
+	MOLECULE_IMAGE_CHECKSUM=sha256:hhttps://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-42-1.1-x86_64-CHECKSUM \
+	MOLECULE_SSH_USER=fedora \
+	MOLECULE_GROUP=rhel_family \
+	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
+	molecule test
+	
 # Linting and syntax checking (same as before)
 lint:
 	@echo "$(YELLOW)Running linting...$(NC)"
