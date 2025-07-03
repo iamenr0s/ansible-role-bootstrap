@@ -162,13 +162,23 @@ test-almalinux9:
 test-fedora42:
 	@echo "$(GREEN)Testing Fedora 42 with QEMU...$(NC)"
 	MOLECULE_DISTRO=fedora42 \
-	MOLECULE_IMAGE_URL=https://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-42-1.1.x86_64.qcow2 \	
-	MOLECULE_IMAGE_CHECKSUM=sha256:https://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-42-1.1-x86_64-CHECKSUM \
+	MOLECULE_IMAGE_URL=https://b4sh.mm.fcix.net/fedora/linux/releases/42/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-42-1.1.x86_64.qcow2 \
+	MOLECULE_IMAGE_CHECKSUM=sha256:e401a4db2e5e04d1967b6729774faa96da629bcf3ba90b67d8d9cce9906bec0f \
 	MOLECULE_SSH_USER=fedora \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 	
+test-fedora41:
+	@echo "$(GREEN)Testing Fedora 41 with QEMU...$(NC)"
+	MOLECULE_DISTRO=fedora41 \
+	MOLECULE_IMAGE_URL=https://b4sh.mm.fcix.net/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2 \
+	MOLECULE_IMAGE_CHECKSUM=sha256:6205ae0c524b4d1816dbd3573ce29b5c44ed26c9fbc874fbe48c41c89dd0bac2 \
+	MOLECULE_SSH_USER=fedora \
+	MOLECULE_GROUP=rhel_family \
+	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
+	molecule test
+
 # Linting and syntax checking (same as before)
 lint:
 	@echo "$(YELLOW)Running linting...$(NC)"
