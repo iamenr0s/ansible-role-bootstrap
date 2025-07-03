@@ -69,6 +69,15 @@
   register: enable_cgroup_debian
   when: ansible_os_family == 'Debian' and ansible_architecture == 'aarch64'
 
+- name: Check if memory cgroup options are already present in GRUB
+  lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX=".*{{ cmdline_options_rhel }}.*"'
+    state: absent
+  check_mode: true
+  register: grub_cgroup_check
+  when: ansible_os_family == 'RedHat'
+
 - name: Enable memory cgroup on RHEL-based systems
   lineinfile:
     path: /etc/default/grub
@@ -76,11 +85,12 @@
     line: 'GRUB_CMDLINE_LINUX="\1 {{ cmdline_options_rhel }}"'
     backrefs: true
   register: enable_cgroup_rhel
-  when: ansible_os_family == 'RedHat'
+  when: ansible_os_family == 'RedHat' and grub_cgroup_check.found == 0
 
 - name: Update GRUB configuration on RHEL-based systems
   command: grub2-mkconfig -o /boot/grub2/grub.cfg
-  when: ansible_os_family == 'RedHat' and enable_cgroup_rhel.changed
+  when: ansible_os_family == 'RedHat' and enable_cgroup_rhel is defined and enable_cgroup_rhel.changed
+  changed_when: enable_cgroup_rhel.changed
 
 # Upgrade distribution (OS-specific)
 - name: Update package cache (Debian-based)
@@ -121,6 +131,22 @@
   when: ansible_os_family == 'RedHat'
 
 # Reboot if kernel updated
+- name: Set reboot required fact
+  set_fact:
+    reboot_needed: >
+      {%- if ansible_os_family == 'Debian' -%}
+        {{ (reboot_required_file_debian.stat.exists | default(false)) or (enable_cgroup_debian.changed | default(false)) }}
+      {%- elif ansible_os_family == 'RedHat' -%}
+        {{ (reboot_required_rhel.rc == 1 | default(false)) or (enable_cgroup_rhel.changed | default(false)) }}
+      {%- else -%}
+        false
+      {%- endif -%}
+
+- name: Check if system was recently rebooted
+  stat:
+    path: /var/run/reboot-required.ansible
+  register: ansible_reboot_marker
+
 - name: Reboot the box if kernel updated/installed
   reboot:
     msg: "Reboot initiated by Ansible for kernel updates"
@@ -129,9 +155,15 @@
     post_reboot_delay: 30
     reboot_timeout: 600
     test_command: uptime
-  when: >
-    (ansible_os_family == 'Debian' and (reboot_required_file_debian.stat.exists or enable_cgroup_debian.changed)) or
-    (ansible_os_family == 'RedHat' and (reboot_required_rhel.rc == 1 or enable_cgroup_rhel.changed))
+  when: reboot_needed | bool and not ansible_reboot_marker.stat.exists
+  register: system_rebooted
+
+- name: Create reboot marker file
+  file:
+    path: /var/run/reboot-required.ansible
+    state: touch
+    mode: '0644'
+  when: system_rebooted is defined and system_rebooted.changed
 
 - name: Wait for system to become reachable
   wait_for_connection:
