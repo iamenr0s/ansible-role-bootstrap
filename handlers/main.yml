@@ -11,3 +11,7 @@
   service:
     name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
     state: restarted
+
+- name: update-grub
+  ansible.builtin.command: update-grub
+  when: grub_modified.changed  # Only run if a change was made

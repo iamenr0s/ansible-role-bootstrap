@@ -87,7 +87,8 @@
   register: enable_cgroup_rhel
   when: ansible_os_family == 'RedHat' and grub_cgroup_check.found == 0
 
-- name: Ensure idempotence check passes
+# Force handlers to run early (for testing idempotence)
+- name: Flush handlers
   ansible.builtin.meta: flush_handlers
   when: enable_cgroup_rhel.changed
 
