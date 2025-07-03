@@ -22,6 +22,12 @@
       #- { name: br_netfilter }
       - { name: overlay }
   pre_tasks:
+    # Fix for Fedora 41+ libdnf5 dependency
+    - name: Install python3-libdnf5 for Fedora 41+
+      raw: dnf install -y python3-libdnf5
+      when: ansible_distribution == 'Fedora' and ansible_distribution_major_version|int >= 41
+      changed_when: false
+
     # Create rocky user for testing (simulating initial connection)
 #    - name: Create rocky user for testing
 #      user:
