@@ -8,8 +8,8 @@ MOLECULE_VERBOSE ?= false
 MOLECULE_SSH_PORT ?= 2222
 
 # Distribution configurations with cloud images
-DEBIAN_DISTROS = ubuntu2204 ubuntu2004 debian12 debian11
-RHEL_DISTROS = rocky9 rocky8 almalinux9 almalinux8
+DEBIAN_DISTROS = ubuntu2404 ubuntu2204 debian12 debian11
+RHEL_DISTROS = rocky10 rocky9 almalinux10 almalinux9 fedora42 fedora41
 ALL_DISTROS = $(DEBIAN_DISTROS) $(RHEL_DISTROS)
 
 # Colors for output
@@ -78,20 +78,21 @@ test-all:
 	@echo "$(GREEN)All tests passed!$(NC)"
 
 # Individual distribution tests with cloud images
+
+test-ubuntu2404:
+	@echo "$(GREEN)Testing Ubuntu 24.04 with QEMU...$(NC)"
+	MOLECULE_DISTRO=ubuntu2404 \
+	MOLECULE_IMAGE_URL=https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img \
+	MOLECULE_IMAGE_CHECKSUM=sha256:https://cloud-images.ubuntu.com/releases/24.04/release/SHA256SUMS \
+	MOLECULE_SSH_USER=ubuntu MOLECULE_GROUP=debian_family \
+	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
+	molecule test
+
 test-ubuntu2204:
 	@echo "$(GREEN)Testing Ubuntu 22.04 with QEMU...$(NC)"
 	MOLECULE_DISTRO=ubuntu2204 \
 	MOLECULE_IMAGE_URL=https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img \
 	MOLECULE_IMAGE_CHECKSUM=sha256:https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS \
-	MOLECULE_SSH_USER=ubuntu MOLECULE_GROUP=debian_family \
-	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
-
-test-ubuntu2004:
-	@echo "$(GREEN)Testing Ubuntu 20.04 with QEMU...$(NC)"
-	MOLECULE_DISTRO=ubuntu2004 \
-	MOLECULE_IMAGE_URL=https://cloud-images.ubuntu.com/releases/20.04/release/ubuntu-20.04-server-cloudimg-amd64.img \
-	MOLECULE_IMAGE_CHECKSUM=sha256:https://cloud-images.ubuntu.com/releases/20.04/release/SHA256SUMS \
 	MOLECULE_SSH_USER=ubuntu MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
@@ -132,11 +133,11 @@ test-rocky9:
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
-test-rocky8:
-	@echo "$(GREEN)Testing Rocky Linux 8 with QEMU...$(NC)"
-	MOLECULE_DISTRO=rocky8 \
-	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/8/images/x86_64/Rocky-8-GenericCloud-Base.latest.x86_64.qcow2 \
-	MOLECULE_IMAGE_CHECKSUM=sha256:e56066c58606191e96184de9a9183a3af33c59bcbd8740d8b10ca054a7a89c14 \
+test-almalinux10:
+	@echo "$(GREEN)Testing AlmaLinux 10 with QEMU...$(NC)"
+	MOLECULE_DISTRO=almalinux10 \
+	MOLECULE_IMAGE_URL=https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2 \
+	MOLECULE_IMAGE_CHECKSUM=sha256:https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/CHECKSUM \
 	MOLECULE_SSH_USER=rocky MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
