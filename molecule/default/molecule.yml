@@ -16,15 +16,6 @@ platforms:
     vm_disk: 20G # optional, default is 8G
     groups:
       - "${MOLECULE_GROUP:-debian_family}"
-    cloud_config:
-      user_data: |
-        #cloud-config
-        packages:
-          - python3
-          - python3-pip
-        package_update: true
-        runcmd:
-          - [ sh, -c, "alternatives --install /usr/bin/python python /usr/bin/python3 1 || ln -sf /usr/bin/python3 /usr/bin/python || true" ]
 provisioner:
   name: ansible
   env:
