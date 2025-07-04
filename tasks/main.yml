@@ -88,7 +88,7 @@
     line: 'GRUB_CMDLINE_LINUX="\1 {{ cmdline_options_rhel }}"'
     backrefs: true
   register: enable_cgroup_rhel
-  when: ansible_os_family == 'RedHat' and grub_cgroup_check.found == 0
+  when: ansible_os_family == 'RedHat' and grub_cgroup_check.rc != 0
 
 # Force handlers to run early (for testing idempotence)
 - name: Flush handlers
