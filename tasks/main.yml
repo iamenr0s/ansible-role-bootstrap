@@ -70,12 +70,15 @@
   when: ansible_os_family == 'Debian' and ansible_architecture == 'aarch64'
 
 - name: Check if memory cgroup options are already present in GRUB
-  lineinfile:
-    path: /etc/default/grub
-    regexp: '^GRUB_CMDLINE_LINUX=".*{{ cmdline_options_rhel }}.*"'
-    state: absent
-  check_mode: true
+  shell: |
+    if grep -q "cgroup_enable=memory" /etc/default/grub && grep -q "swapaccount=1" /etc/default/grub; then
+      exit 0
+    else
+      exit 1
+    fi
   register: grub_cgroup_check
+  failed_when: false
+  changed_when: false
   when: ansible_os_family == 'RedHat'
 
 - name: Enable memory cgroup on RHEL-based systems
