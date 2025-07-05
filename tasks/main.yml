@@ -210,11 +210,16 @@
   when: ansible_os_family == 'RedHat'
 
 # Disable SWAP
-- name: Disable SWAP
-  shell: |
-    swapoff -a
-  when: ansible_swaptotal_mb > 0
+# Disable SWAP
+- name: Check if swap is enabled
+  shell: swapon --show --noheadings
+  register: swap_status
+  changed_when: false
+  failed_when: false
 
+- name: Disable SWAP
+  shell: swapoff -a
+  when: swap_status.stdout != ""
 - name: Disable SWAP in /etc/fstab
   replace:
     path: /etc/fstab
