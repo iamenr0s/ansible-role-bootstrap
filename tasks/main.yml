@@ -115,6 +115,14 @@
   until: upgrade_distribution_debian is succeeded
   when: ansible_os_family == 'Debian'
 
+- name: Install libdnf5 for Fedora
+  dnf:
+    name: python3-libdnf5
+    state: present
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution == 'Fedora'
+
 - name: Upgrade distribution (RHEL-based)
   dnf:
     name: '*'
