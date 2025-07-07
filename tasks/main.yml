@@ -101,11 +101,6 @@
   changed_when: enable_cgroup_rhel.changed
 
 # Upgrade distribution (OS-specific)
-- name: Set ansible_python_interpreter for RHEL-based systems
-  set_fact:
-    ansible_python_interpreter: /usr/bin/python3
-  when: ansible_os_family == 'RedHat'
-
 - name: Update package cache (Debian-based)
   apt:
     update_cache: true
@@ -119,12 +114,6 @@
   retries: 5
   until: upgrade_distribution_debian is succeeded
   when: ansible_os_family == 'Debian'
-
-- name: Install python3-libdnf5 for RHEL-based systems
-  dnf:
-    name: python3-libdnf5
-    state: present
-  when: ansible_os_family == 'RedHat'
 
 - name: Upgrade distribution (RHEL-based)
   dnf:
