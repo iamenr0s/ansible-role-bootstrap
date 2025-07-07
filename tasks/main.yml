@@ -203,6 +203,15 @@
     state: present
   when: ansible_os_family == 'Debian'
 
+# Install essential packages first (before any other dnf operations)
+- name: Install essential packages for dnf operations (RHEL-based)
+  dnf:
+    name:
+      - python3-libdnf5
+      - dnf-utils
+    state: present
+  when: ansible_os_family == 'RedHat'
+
 - name: Install bootstrap packages (RHEL-based)
   dnf:
     name: "{{ bootstrap_packages_rhel }}"
