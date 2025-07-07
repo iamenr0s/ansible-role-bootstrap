@@ -28,6 +28,7 @@ bootstrap_packages_rhel:
   - sudo
   - dnf-utils
   - yum-utils
+  - python3-libdnf5
 
 # Kernel parameters
 bootstrap_kernel_parameters:

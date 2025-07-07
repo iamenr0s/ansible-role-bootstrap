@@ -15,3 +15,9 @@
 - name: update-grub
   ansible.builtin.command: update-grub
   when: grub_modified.changed  # Only run if a change was made
+
+- name: Remount filesystems if needed
+  mount:
+    name: /
+    state: remounted
+  when: fstab_modified is changed

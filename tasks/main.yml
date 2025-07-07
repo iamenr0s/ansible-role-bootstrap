@@ -210,23 +210,36 @@
   when: ansible_os_family == 'RedHat'
 
 # Disable SWAP
-- name: Check if swap is enabled
-  shell: swapon --show --noheadings
+- name: Check if swap is currently enabled
+  stat:
+    path: /proc/swaps
+  register: swap_info
+
+- name: Get current swap usage (alternative method)
+  shell: |
+    if [ -f /proc/swaps ] && [ $(wc -l < /proc/swaps) -gt 1 ]; then
+      echo "swap_active"
+    else
+      echo "swap_inactive"
+    fi
   register: swap_status
   changed_when: false
-  failed_when: false
 
-- name: Disable SWAP
-  shell: swapoff -a
-  when: swap_status.stdout != ""
-  changed_when: swap_status.stdout != ""
-  
-- name: Disable SWAP in /etc/fstab
+- name: Disable swap if active
+  command: swapoff -a
+  when:
+    - swap_info.stat.exists
+    - swap_info.stat.size > 0
+    - "'swap_active' in swap_status.stdout"
+  #notify: Ensure swap remains disabled
+
+- name: Comment out swap entries in fstab
   replace:
     path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    regexp: '^([^#].*?\sswap\s+.*)$'
     replace: '# \1'
-    mode: '0664'
+  register: fstab_modified
+  notify: Remount filesystems if needed    
 
 # Load kernel modules
 - name: Load kernel modules
