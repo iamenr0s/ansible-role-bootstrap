@@ -119,9 +119,21 @@
   dnf:
     name: python3-libdnf5
     state: present
+  register: libdnf_install
+  until: libdnf_install is succeeded
+  retries: 3
+  delay: 10
   when:
     - ansible_os_family == 'RedHat'
     - ansible_distribution == 'Fedora'
+
+- name: Set alternative Python interpreter if libdnf5 install failed
+  set_fact:
+    ansible_python_interpreter: /usr/libexec/platform-python
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_distribution == 'Fedora'
+    - libdnf_install is failed
 
 - name: Upgrade distribution (RHEL-based)
   dnf:
