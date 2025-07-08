@@ -139,28 +139,28 @@
       changed_when: false
 
     - name: Upgrade distribution (RHEL-based)
-      dnf:
+      ansible.builtin.dnf:
         name: '*'
-        state: latest
+        state: present
         update_cache: yes
       register: upgrade_distribution_rhel
       retries: 5
       until: upgrade_distribution_rhel is succeeded
 
     - name: Check if reboot is needed (RHEL-based)
-      command: needs-restarting -r
+      ansible.builtin.command: needs-restarting -r
       register: reboot_required_rhel
       failed_when: false
       changed_when: reboot_required_rhel.rc == 1
 
     - name: Install bootstrap packages (RHEL-based)
-      dnf:
+      ansible.builtin.dnf:
         name: "{{ bootstrap_packages_rhel }}"
         state: present
 
 # Reboot if kernel updated
 - name: Set reboot required fact
-  set_fact:
+  ansible.builtin.set_fact:
     reboot_needed: >
       {%- if ansible_os_family == 'Debian' -%}
         {{ (reboot_required_file_debian.stat.exists | default(false)) or (enable_cgroup_debian.changed | default(false)) }}
@@ -171,12 +171,12 @@
       {%- endif -%}
 
 - name: Check if system was recently rebooted
-  stat:
+  ansible.builtin.stat:
     path: /var/run/reboot-required.ansible
   register: ansible_reboot_marker
 
 - name: Reboot the box if kernel updated/installed
-  reboot:
+  ansible.builtin.reboot:
     msg: "Reboot initiated by Ansible for kernel updates"
     connect_timeout: 5
     pre_reboot_delay: 0
@@ -187,14 +187,14 @@
   register: system_rebooted
 
 - name: Create reboot marker file
-  file:
+  ansible.builtin.file:
     path: /var/run/reboot-required.ansible
     state: touch
     mode: '0644'
   when: system_rebooted is defined and system_rebooted.changed
 
 - name: Wait for system to become reachable
-  wait_for_connection:
+  ansible.builtin.wait_for_connection:
     delay: 10
     timeout: 300
   when: >
@@ -203,7 +203,7 @@
 
 # Generate hosts file
 - name: Generate /etc/hosts file
-  template:
+  ansible.builtin.template:
     src: etc/hosts.j2
     dest: /etc/hosts
     owner: root
@@ -211,19 +211,19 @@
     mode: '0644'
 
 - name: Set hostname
-  hostname:
+  ansible.builtin.hostname:
     name: "{{ hostvars[inventory_hostname].inventory_hostname }}"
   notify:
     - restart systemd-logind
 
 # Disable SWAP
 - name: Check if swap is currently enabled
-  stat:
+  ansible.builtin.stat:
     path: /proc/swaps
   register: swap_info
 
 - name: Get current swap usage (alternative method)
-  shell: |
+  ansible.builtin.shell: |
     if [ -f /proc/swaps ] && [ $(wc -l < /proc/swaps) -gt 1 ]; then
       echo "swap_active"
     else
@@ -233,15 +233,16 @@
   changed_when: false
 
 - name: Disable swap if active
-  command: swapoff -a
+  ansible.builtin.command: swapoff -a
   when:
     - swap_info.stat.exists
     - swap_info.stat.size > 0
     - "'swap_active' in swap_status.stdout"
+  changed_when: true
   #notify: Ensure swap remains disabled
 
 - name: Comment out swap entries in fstab
-  replace:
+  ansible.builtin.replace:
     path: /etc/fstab
     regexp: '^([^#].*?\sswap\s+.*)$'
     replace: '# \1'
@@ -250,22 +251,23 @@
 
 # Load kernel modules
 - name: Load kernel modules
-  modprobe:
+  community.general.modprobe:
     name: "{{ item.name }}"
     state: present
     params: "{{ item.params | default(omit) }}"
   loop: "{{ bootstrap_kernel_modules }}"
 
 - name: Ensure kernel modules are loaded at boot
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/modules-load.d/bootstrap.conf
     line: "{{ item.name }}"
     create: true
+    mode: '0644'
   loop: "{{ bootstrap_kernel_modules }}"
 
 # Set kernel parameters
 - name: Set kernel parameters
-  sysctl:
+  ansible.posix.sysctl:
     name: "{{ item.name }}"
     sysctl_file: "{{ item.file | default(omit) }}"
     sysctl_set: true
