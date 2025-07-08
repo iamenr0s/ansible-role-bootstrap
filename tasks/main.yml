@@ -115,10 +115,21 @@
   until: upgrade_distribution_debian is succeeded
   when: ansible_os_family == 'Debian'
 
+- name: Install python3-libdnf5 using raw command (RHEL-based)
+  raw: |
+    if ! python3 -c "import libdnf5" 2>/dev/null; then
+      dnf install -y python3-libdnf5 dnf-utils || yum install -y python3-libdnf5 dnf-utils
+    fi
+  when: 
+    - ansible_distribution == 'Fedora'
+    - ansible_distribution_major_version == '41'
+  changed_when: false
+
 - name: Upgrade distribution (RHEL-based)
   dnf:
     name: '*'
     state: latest
+    update_cache: yes
   register: upgrade_distribution_rhel
   retries: 5
   until: upgrade_distribution_rhel is succeeded
@@ -202,15 +213,6 @@
     name: "{{ bootstrap_packages_debian }}"
     state: present
   when: ansible_os_family == 'Debian'
-
-# Install essential packages first (before any other dnf operations)
-- name: Install essential packages for dnf operations (RHEL-based)
-  dnf:
-    name:
-      - python3-libdnf5
-      - dnf-utils
-    state: present
-  when: ansible_os_family == 'RedHat'
 
 - name: Install bootstrap packages (RHEL-based)
   dnf:

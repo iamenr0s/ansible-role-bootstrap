@@ -27,12 +27,7 @@
           elif command -v dnf > /dev/null 2>&1; then
             dnf install -y python3
           elif command -v yum > /dev/null 2>&1; then
-            yum install -y python3
+            yum install -y python3 
           fi
         fi
       changed_when: false
-
-    - name: Ensure sudo is installed
-      package:
-        name: sudo
-        state: present

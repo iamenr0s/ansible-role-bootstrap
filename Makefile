@@ -107,7 +107,7 @@ test-debian12:
 	MOLECULE_SSH_USER=debian \
 	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule -v test
+	molecule test
 
 test-debian11:
 	@echo "$(GREEN)Testing Debian 11 with QEMU...$(NC)"
