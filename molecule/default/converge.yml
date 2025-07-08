@@ -58,6 +58,7 @@
 
   roles:
     - role: ansible-role-bootstrap
+      name: bootstrap
 
   post_tasks:
     - name: Verify system came back after reboot
