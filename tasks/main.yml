@@ -239,7 +239,7 @@
     - swap_info.stat.size > 0
     - "'swap_active' in swap_status.stdout"
   changed_when: true
-  #notify: Ensure swap remains disabled
+  # notify: Ensure swap remains disabled
 
 - name: Comment out swap entries in fstab
   ansible.builtin.replace:

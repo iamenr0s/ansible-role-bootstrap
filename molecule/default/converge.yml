@@ -16,10 +16,10 @@
     bootstrap_kernel_parameters:
       - { name: vm.swappiness, value: 0 }
       - { name: net.ipv4.ip_forward, value: 1 }
-      #- { name: net.bridge.bridge-nf-call-ip6tables, value: 1, file: /etc/sysctl.d/k8s.conf }
-      #- { name: net.bridge.bridge-nf-call-iptables, value: 1, file: /etc/sysctl.d/k8s.conf }
+      # - { name: net.bridge.bridge-nf-call-ip6tables, value: 1, file: /etc/sysctl.d/k8s.conf }
+      # - { name: net.bridge.bridge-nf-call-iptables, value: 1, file: /etc/sysctl.d/k8s.conf }
     bootstrap_kernel_modules:
-      #- { name: br_netfilter }
+      # - { name: br_netfilter }
       - { name: overlay }
   pre_tasks:
     # Create rocky user for testing (simulating initial connection)
