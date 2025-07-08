@@ -275,4 +275,3 @@
     reload: true
     value: "{{ item.value }}"
   loop: "{{ bootstrap_kernel_parameters }}"
-
