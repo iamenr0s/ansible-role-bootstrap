@@ -57,7 +57,7 @@
       when: ansible_env.MOLECULE_TEST_REBOOT is defined
 
   roles:
-    - role: ansible-role-bootstrap
+    - role: ansible_role_bootstrap
       name: bootstrap
 
   post_tasks:
