@@ -57,96 +57,106 @@
     state: started
     enabled: true
 
-# Enable memory control group subsystem (OS-specific)
-- name: Enable memory cgroup on Debian-based systems (Raspberry Pi)
-  lineinfile:
-    path: /boot/firmware/cmdline.txt
-    regexp: "^(.*rootwait .*)(?<!{{ cmdline_options }})$"
-    line: '\1 {{ cmdline_options }}'
-    state: present
-    backrefs: true
-    create: true
-  register: enable_cgroup_debian
-  when: ansible_os_family == 'Debian' and ansible_architecture == 'aarch64'
+# Debian-based systems tasks
+- name: Debian-based systems configuration
+  block:
+    - name: Enable memory cgroup on Debian-based systems (Raspberry Pi)
+      lineinfile:
+        path: /boot/firmware/cmdline.txt
+        regexp: "^(.*rootwait .*)(?<!{{ cmdline_options }})$"
+        line: '\1 {{ cmdline_options }}'
+        state: present
+        backrefs: true
+        create: true
+      register: enable_cgroup_debian
+      when: ansible_architecture == 'aarch64'
 
-- name: Check if memory cgroup options are already present in GRUB
-  shell: |
-    if grep -q "cgroup_enable=memory" /etc/default/grub && grep -q "swapaccount=1" /etc/default/grub; then
-      exit 0
-    else
-      exit 1
-    fi
-  register: grub_cgroup_check
-  failed_when: false
-  changed_when: false
-  when: ansible_os_family == 'RedHat'
+    - name: Update package cache (Debian-based)
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
 
-- name: Enable memory cgroup on RHEL-based systems
-  lineinfile:
-    path: /etc/default/grub
-    regexp: '^GRUB_CMDLINE_LINUX="(.*)"'
-    line: 'GRUB_CMDLINE_LINUX="\1 {{ cmdline_options_rhel }}"'
-    backrefs: true
-  register: enable_cgroup_rhel
-  when: ansible_os_family == 'RedHat' and grub_cgroup_check.rc != 0
+    - name: Upgrade distribution (Debian-based)
+      apt:
+        upgrade: dist
+      register: upgrade_distribution_debian
+      retries: 5
+      until: upgrade_distribution_debian is succeeded
 
-# Force handlers to run early (for testing idempotence)
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
-  when: enable_cgroup_rhel.changed
+    - name: Check if reboot is needed (Debian-based)
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file_debian
 
-- name: Update GRUB configuration on RHEL-based systems
-  command: grub2-mkconfig -o /boot/grub2/grub.cfg
-  when: ansible_os_family == 'RedHat' and enable_cgroup_rhel is defined and enable_cgroup_rhel.changed
-  changed_when: enable_cgroup_rhel.changed
+    - name: Install bootstrap packages (Debian-based)
+      apt:
+        name: "{{ bootstrap_packages_debian }}"
+        state: present
 
-# Upgrade distribution (OS-specific)
-- name: Update package cache (Debian-based)
-  apt:
-    update_cache: true
-    cache_valid_time: 3600
   when: ansible_os_family == 'Debian'
 
-- name: Upgrade distribution (Debian-based)
-  apt:
-    upgrade: dist
-  register: upgrade_distribution_debian
-  retries: 5
-  until: upgrade_distribution_debian is succeeded
-  when: ansible_os_family == 'Debian'
+# RHEL-based systems tasks
+- name: RHEL-based systems configuration
+  block:
+    - name: Check if memory cgroup options are already present in GRUB
+      shell: |
+        if grep -q "cgroup_enable=memory" /etc/default/grub && grep -q "swapaccount=1" /etc/default/grub; then
+          exit 0
+        else
+          exit 1
+        fi
+      register: grub_cgroup_check
+      failed_when: false
+      changed_when: false
 
-- name: Install python3-libdnf5 using raw command (RHEL-based)
-  raw: |
-    if ! python3 -c "import libdnf5" 2>/dev/null; then
-      dnf install -y python3-libdnf5 dnf-utils || yum install -y python3-libdnf5 dnf-utils
-    fi
-  when: 
-    - ansible_distribution == 'Fedora'
-    - ansible_distribution_major_version == '41'
-  changed_when: false
+    - name: Enable memory cgroup on RHEL-based systems
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX="(.*)"'
+        line: 'GRUB_CMDLINE_LINUX="\1 {{ cmdline_options_rhel }}"'
+        backrefs: true
+      register: enable_cgroup_rhel
+      when: grub_cgroup_check.rc != 0
 
-- name: Upgrade distribution (RHEL-based)
-  dnf:
-    name: '*'
-    state: latest
-    update_cache: yes
-  register: upgrade_distribution_rhel
-  retries: 5
-  until: upgrade_distribution_rhel is succeeded
-  when: ansible_os_family == 'RedHat'
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+      when: enable_cgroup_rhel.changed
 
-# Check for reboot requirement
-- name: Check if reboot is needed (Debian-based)
-  stat:
-    path: /var/run/reboot-required
-  register: reboot_required_file_debian
-  when: ansible_os_family == 'Debian'
+    - name: Update GRUB configuration on RHEL-based systems
+      command: grub2-mkconfig -o /boot/grub2/grub.cfg
+      when: enable_cgroup_rhel is defined and enable_cgroup_rhel.changed
+      changed_when: enable_cgroup_rhel.changed
 
-- name: Check if reboot is needed (RHEL-based)
-  command: needs-restarting -r
-  register: reboot_required_rhel
-  failed_when: false
-  changed_when: reboot_required_rhel.rc == 1
+    - name: Install python3-libdnf5 using raw command (RHEL-based)
+      raw: |
+        if ! python3 -c "import libdnf5" 2>/dev/null; then
+          dnf install -y python3-libdnf5 dnf-utils || yum install -y python3-libdnf5 dnf-utils
+        fi
+      when: 
+        - ansible_distribution == 'Fedora'
+        - ansible_distribution_major_version == '41'
+      changed_when: false
+
+    - name: Upgrade distribution (RHEL-based)
+      dnf:
+        name: '*'
+        state: latest
+        update_cache: yes
+      register: upgrade_distribution_rhel
+      retries: 5
+      until: upgrade_distribution_rhel is succeeded
+
+    - name: Check if reboot is needed (RHEL-based)
+      command: needs-restarting -r
+      register: reboot_required_rhel
+      failed_when: false
+      changed_when: reboot_required_rhel.rc == 1
+
+    - name: Install bootstrap packages (RHEL-based)
+      dnf:
+        name: "{{ bootstrap_packages_rhel }}"
+        state: present
+
   when: ansible_os_family == 'RedHat'
 
 # Reboot if kernel updated
@@ -206,19 +216,6 @@
     name: "{{ hostvars[inventory_hostname].inventory_hostname }}"
   notify:
     - restart systemd-logind
-
-# Install bootstrap packages (OS-specific)
-- name: Install bootstrap packages (Debian-based)
-  apt:
-    name: "{{ bootstrap_packages_debian }}"
-    state: present
-  when: ansible_os_family == 'Debian'
-
-- name: Install bootstrap packages (RHEL-based)
-  dnf:
-    name: "{{ bootstrap_packages_rhel }}"
-    state: present
-  when: ansible_os_family == 'RedHat'
 
 # Disable SWAP
 - name: Check if swap is currently enabled
