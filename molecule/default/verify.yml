@@ -5,33 +5,33 @@
   gather_facts: true
   tasks:
     - name: Check if ansible user exists
-      user:
+      ansible.builtin.user:
         name: ansible
         state: present
       check_mode: true
       register: ansible_user_check
 
     - name: Verify ansible user was created
-      assert:
+      ansible.builtin.assert:
         that:
           - not ansible_user_check.changed
         fail_msg: "Ansible user was not created"
 
     - name: Check if rocky user was removed
-      user:
+      ansible.builtin.user:
         name: rocky
         state: absent
       check_mode: true
       register: rocky_user_check
 
     - name: Verify rocky user was removed
-      assert:
+      ansible.builtin.assert:
         that:
           - not rocky_user_check.changed
         fail_msg: "Rocky user was not removed"
 
     - name: Check SSH configuration
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: '^PermitRootLogin'
         line: 'PermitRootLogin no'
@@ -39,29 +39,31 @@
       register: ssh_config_check
 
     - name: Verify SSH is configured securely
-      assert:
+      ansible.builtin.assert:
         that:
           - not ssh_config_check.changed
         fail_msg: "SSH configuration is not secure"
 
     - name: Check if swap is disabled in fstab
-      shell: grep -v '^#' /etc/fstab | grep swap || true
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -v '^#' /etc/fstab | grep swap || true
       register: swap_check
       changed_when: false
 
     - name: Verify swap is disabled
-      assert:
+      ansible.builtin.assert:
         that:
           - swap_check.stdout == ""
         fail_msg: "Swap is not disabled in /etc/fstab"
 
     - name: Check sysctl parameters
-      shell: sysctl vm.swappiness
+      ansible.builtin.command: sysctl vm.swappiness
       register: sysctl_check
       changed_when: false
 
     - name: Verify sysctl parameters
-      assert:
+      ansible.builtin.assert:
         that:
           - "'vm.swappiness = 0' in sysctl_check.stdout"
         fail_msg: "Sysctl parameters are not set correctly"

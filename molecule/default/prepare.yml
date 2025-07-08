@@ -5,20 +5,20 @@
   gather_facts: false
   tasks:
     - name: Wait for system to become reachable
-      wait_for_connection:
+      ansible.builtin.wait_for_connection:
         timeout: 300
 
     - name: Gather facts
-      setup:
+      ansible.builtin.setup:
 
     - name: Update package cache (Debian-based)
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
       when: ansible_os_family == 'Debian'
 
     - name: Install Python for Ansible (if needed)
-      raw: |
+      ansible.builtin.raw: |
         if command -v python3 > /dev/null 2>&1; then
           echo "Python3 already installed"
         else
