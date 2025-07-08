@@ -1,23 +1,24 @@
 ---
 # handlers file for bootstrap
 
-- name: restart systemd-logind
-  service:
+- name: Restart systemd-logind
+  ansible.builtin.service:
     name: systemd-logind
     state: restarted
   when: ansible_service_mgr == 'systemd'
 
-- name: restart sshd
-  service:
+- name: Restart sshd
+  ansible.builtin.service:
     name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
     state: restarted
 
-- name: update-grub
+- name: Update-grub
   ansible.builtin.command: update-grub
   when: grub_modified.changed  # Only run if a change was made
+  changed_when: true  # This command always makes changes when run
 
 - name: Remount filesystems if needed
-  mount:
+  ansible.posix.mount:
     name: /
     state: remounted
   when: fstab_modified is changed

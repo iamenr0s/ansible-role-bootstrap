@@ -3,7 +3,7 @@
 
 # Detect OS family for conditional tasks
 - name: Gather OS facts
-  setup:
+  ansible.builtin.setup:
     gather_subset:
       - '!all'
       - '!min'
@@ -11,7 +11,7 @@
 
 # Create ansible user with sudo privileges
 - name: Create ansible user
-  user:
+  ansible.builtin.user:
     name: ansible
     groups: "{{ 'sudo' if ansible_os_family == 'Debian' else 'wheel' }}"
     append: true
@@ -20,7 +20,7 @@
     state: present
 
 - name: Set up passwordless sudo for ansible user
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers.d/ansible
     line: 'ansible ALL=(ALL) NOPASSWD:ALL'
     create: true
@@ -28,7 +28,7 @@
     validate: 'visudo -cf %s'
 
 - name: Create .ssh directory for ansible user
-  file:
+  ansible.builtin.file:
     path: /home/ansible/.ssh
     state: directory
     owner: ansible
@@ -37,7 +37,7 @@
 
 # Configure and secure SSH
 - name: Configure SSH daemon
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
@@ -52,54 +52,55 @@
   notify: restart sshd
 
 - name: Enable and start SSH service
-  service:
+  ansible.builtin.service:
     name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
     state: started
     enabled: true
 
 # Debian-based systems tasks
 - name: Debian-based systems configuration
+  when: ansible_os_family == 'Debian'
   block:
     - name: Enable memory cgroup on Debian-based systems (Raspberry Pi)
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /boot/firmware/cmdline.txt
         regexp: "^(.*rootwait .*)(?<!{{ cmdline_options }})$"
         line: '\1 {{ cmdline_options }}'
         state: present
         backrefs: true
         create: true
+        mode: '0644'
       register: enable_cgroup_debian
       when: ansible_architecture == 'aarch64'
 
     - name: Update package cache (Debian-based)
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
 
     - name: Upgrade distribution (Debian-based)
-      apt:
+      ansible.builtin.apt:
         upgrade: dist
       register: upgrade_distribution_debian
       retries: 5
       until: upgrade_distribution_debian is succeeded
 
     - name: Check if reboot is needed (Debian-based)
-      stat:
+      ansible.builtin.stat:
         path: /var/run/reboot-required
       register: reboot_required_file_debian
 
     - name: Install bootstrap packages (Debian-based)
-      apt:
+      ansible.builtin.apt:
         name: "{{ bootstrap_packages_debian }}"
         state: present
 
-  when: ansible_os_family == 'Debian'
-
 # RHEL-based systems tasks
 - name: RHEL-based systems configuration
+  when: ansible_os_family == 'RedHat'
   block:
     - name: Check if memory cgroup options are already present in GRUB
-      shell: |
+      ansible.builtin.shell: |
         if grep -q "cgroup_enable=memory" /etc/default/grub && grep -q "swapaccount=1" /etc/default/grub; then
           exit 0
         else
@@ -110,7 +111,7 @@
       changed_when: false
 
     - name: Enable memory cgroup on RHEL-based systems
-      lineinfile:
+      ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX="(.*)"'
         line: 'GRUB_CMDLINE_LINUX="\1 {{ cmdline_options_rhel }}"'
@@ -123,12 +124,12 @@
       when: enable_cgroup_rhel.changed
 
     - name: Update GRUB configuration on RHEL-based systems
-      command: grub2-mkconfig -o /boot/grub2/grub.cfg
+      ansible.builtin.command: grub2-mkconfig -o /boot/grub2/grub.cfg
       when: enable_cgroup_rhel is defined and enable_cgroup_rhel.changed
       changed_when: enable_cgroup_rhel.changed
 
     - name: Install python3-libdnf5 using raw command (RHEL-based)
-      raw: |
+      ansible.builtin.raw: |
         if ! python3 -c "import libdnf5" 2>/dev/null; then
           dnf install -y python3-libdnf5 dnf-utils || yum install -y python3-libdnf5 dnf-utils
         fi
@@ -156,8 +157,6 @@
       dnf:
         name: "{{ bootstrap_packages_rhel }}"
         state: present
-
-  when: ansible_os_family == 'RedHat'
 
 # Reboot if kernel updated
 - name: Set reboot required fact

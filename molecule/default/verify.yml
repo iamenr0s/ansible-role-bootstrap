@@ -69,16 +69,16 @@
         fail_msg: "Sysctl parameters are not set correctly"
 
     - name: Verify system uptime (indicates successful reboot handling)
-      shell: uptime
+      ansible.builtin.command: uptime
       register: uptime_check
       changed_when: false
 
     - name: Display uptime for verification
-      debug:
+      ansible.builtin.debug:
         msg: "System uptime: {{ uptime_check.stdout }}"
 
     - name: Check if systemd services are running properly
-      service:
+      ansible.builtin.service:
         name: "{{ item }}"
         state: started
       check_mode: true
@@ -89,7 +89,7 @@
       failed_when: false
 
     - name: Verify essential services are running
-      assert:
+      ansible.builtin.assert:
         that:
           - not item.changed
         fail_msg: "Service {{ item.item }} is not running"
