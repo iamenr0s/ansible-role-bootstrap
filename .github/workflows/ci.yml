@@ -21,47 +21,17 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install molecule-qemu molecule[ansible] ansible-lint yamllint
+        run: make install-deps-qemu
 
-      - name: Run linting
-        run: |
-          yamllint .
-          ansible-lint
+      - name: Run linting and syntax check
+        run: make check
 
-  test-qemu:
+  test-debian:
     runs-on: ubuntu-latest
     needs: lint
     strategy:
       matrix:
-        distro:
-          - ubuntu2204
-          - ubuntu2004
-          - debian12
-          - debian11
-        include:
-          - distro: ubuntu2204
-            image_url: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
-            checksum: "sha256:https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS"
-            ssh_user: "ubuntu"
-            group: "debian_family"
-          - distro: ubuntu2004
-            image_url: "https://cloud-images.ubuntu.com/releases/20.04/release/ubuntu-20.04-server-cloudimg-amd64.img"
-            checksum: "sha256:https://cloud-images.ubuntu.com/releases/20.04/release/SHA256SUMS"
-            ssh_user: "ubuntu"
-            group: "debian_family"
-          - distro: debian12
-            image_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
-            checksum: "sha512:https://cloud.debian.org/images/cloud/bookworm/latest/SHA512SUMS"
-            ssh_user: "debian"
-            group: "debian_family"
-          - distro: debian11
-            image_url: "https://cloud.debian.org/images/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
-            checksum: "sha512:https://cloud.debian.org/images/cloud/bullseye/latest/SHA512SUMS"
-            ssh_user: "debian"
-            group: "debian_family"
-
+        distro: [ubuntu2404, ubuntu2204, debian12, debian11, almalinux9, almalinux10, rockylinux9, rockylinux10, fedora41, fedora42]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,24 +41,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mkisofs qemu-system-x86 qemu-utils
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install molecule-qemu molecule[ansible] ansible-lint yamllint
+      - name: Install dependencies
+        run: make install-deps-qemu
 
       - name: Test with Molecule QEMU
-        run: molecule test
+        run: make test-${{ matrix.distro }}
         env:
-          MOLECULE_DISTRO: ${{ matrix.distro }}
-          MOLECULE_IMAGE_URL: ${{ matrix.image_url }}
-          MOLECULE_IMAGE_CHECKSUM: ${{ matrix.checksum }}
-          MOLECULE_SSH_USER: ${{ matrix.ssh_user }}
-          MOLECULE_GROUP: ${{ matrix.group }}
           MOLECULE_MEMORY: 2048
           MOLECULE_CPUS: 2
           MOLECULE_DISK: 8G
