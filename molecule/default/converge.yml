@@ -50,18 +50,18 @@
 #        remote_src: true
 
     - name: Install packages that might trigger kernel updates (for reboot testing)
-      package:
+      ansible.builtin.package:
         name: "{{ 'linux-generic' if ansible_os_family == 'Debian' else 'kernel' }}"
-        state: latest
+        state: present
       register: kernel_update
       when: ansible_env.MOLECULE_TEST_REBOOT is defined
 
   roles:
-    - role: ansible_role_bootstrap
+    - role: iamenr0s.ansible_role_bootstrap
       name: bootstrap
 
   post_tasks:
     - name: Verify system came back after reboot
-      debug:
+      ansible.builtin.debug:
         msg: "System successfully rebooted and is responsive"
       when: kernel_update is defined and kernel_update.changed
