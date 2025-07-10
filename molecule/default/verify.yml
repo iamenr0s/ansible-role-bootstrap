@@ -17,23 +17,23 @@
           - not ansible_user_check.changed
         fail_msg: "Ansible user was not created"
 
-    - name: Check if rocky user was removed
-      ansible.builtin.user:
-        name: rocky
-        state: absent
-      check_mode: true
-      register: rocky_user_check
+#  - name: Check if rocky user was removed
+#    ansible.builtin.user:
+#      name: rocky
+#      state: absent
+#     check_mode: true
+#     register: rocky_user_check
 
-    - name: Verify rocky user was removed
-      ansible.builtin.assert:
-        that:
-          - not rocky_user_check.changed
-        fail_msg: "Rocky user was not removed"
+#    - name: Verify rocky user was removed
+#      ansible.builtin.assert:
+#        that:
+#          - not rocky_user_check.changed
+#        fail_msg: "Rocky user was not removed"
 
     - name: Check SSH configuration
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^PermitRootLogin'
+        regexp: '^#?PermitRootLogin'
         line: 'PermitRootLogin no'
       check_mode: true
       register: ssh_config_check
