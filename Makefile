@@ -9,7 +9,7 @@ MOLECULE_SSH_PORT ?= 2222
 
 # Distribution configurations with cloud images
 DEBIAN_DISTROS = ubuntu2404 ubuntu2204 debian12 debian11
-RHEL_DISTROS = rocky10 rocky9 almalinux10 almalinux9 fedora42 fedora41
+RHEL_DISTROS = rockylinux10 rockylinux9 almalinux10 almalinux9 fedora42 fedora41
 ALL_DISTROS = $(DEBIAN_DISTROS) $(RHEL_DISTROS)
 
 # Colors for output
@@ -119,9 +119,9 @@ test-debian11:
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
-test-rocky10:
+test-rockylinux10:
 	@echo "$(GREEN)Testing Rocky Linux 10 with QEMU...$(NC)"
-	MOLECULE_DISTRO=rocky10 \
+	MOLECULE_DISTRO=rockylinux10 \
 	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/10/images/x86_64/Rocky-10-GenericCloud-Base.latest.x86_64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha256:20e771c654724e002c32fb92a05fdfdd7ac878c192f50e2fc21f53e8f098b8f9 \
 	MOLECULE_SSH_USER=rocky \
@@ -129,9 +129,9 @@ test-rocky10:
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
 	molecule test
 
-test-rocky9:
+test-rockylinux9:
 	@echo "$(GREEN)Testing Rocky Linux 9 with QEMU...$(NC)"
-	MOLECULE_DISTRO=rocky9 \
+	MOLECULE_DISTRO=rockylinux9 \
 	MOLECULE_IMAGE_URL=https://download.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud-Base.latest.x86_64.qcow2 \
 	MOLECULE_IMAGE_CHECKSUM=sha256:2c72815bb83cadccbede4704780e9b52033722db8a45c3fb02130aa380690a3d \
 	MOLECULE_SSH_USER=rocky \
