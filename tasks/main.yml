@@ -49,7 +49,7 @@
     - { regexp: '^#?AuthorizedKeysFile', line: 'AuthorizedKeysFile .ssh/authorized_keys' }
     - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
     - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
-  notify: Restart sshd
+  notify: restart sshd
 
 - name: Enable and start SSH service
   ansible.builtin.service:
@@ -119,7 +119,7 @@
       register: enable_cgroup_rhel
       when: grub_cgroup_check.rc != 0
 
-    - name: Force handlers to run
+    - name: Flush handlers
       ansible.builtin.meta: flush_handlers
       when: enable_cgroup_rhel.changed
 

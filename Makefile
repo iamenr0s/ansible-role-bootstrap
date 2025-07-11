@@ -87,7 +87,7 @@ test-ubuntu2404:
 	MOLECULE_SSH_USER=ubuntu \
 	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-ubuntu2204:
 	@echo "$(GREEN)Testing Ubuntu 22.04 with QEMU...$(NC)"
@@ -97,7 +97,7 @@ test-ubuntu2204:
 	MOLECULE_SSH_USER=ubuntu \
 	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-debian12:
 	@echo "$(GREEN)Testing Debian 12 with QEMU...$(NC)"
@@ -107,7 +107,7 @@ test-debian12:
 	MOLECULE_SSH_USER=debian \
 	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-debian11:
 	@echo "$(GREEN)Testing Debian 11 with QEMU...$(NC)"
@@ -117,7 +117,7 @@ test-debian11:
 	MOLECULE_SSH_USER=debian \
 	MOLECULE_GROUP=debian_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-rockylinux10:
 	@echo "$(GREEN)Testing Rocky Linux 10 with QEMU...$(NC)"
@@ -127,7 +127,7 @@ test-rockylinux10:
 	MOLECULE_SSH_USER=rocky \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-rockylinux9:
 	@echo "$(GREEN)Testing Rocky Linux 9 with QEMU...$(NC)"
@@ -137,7 +137,7 @@ test-rockylinux9:
 	MOLECULE_SSH_USER=rocky \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-almalinux10:
 	@echo "$(GREEN)Testing AlmaLinux 10 with QEMU...$(NC)"
@@ -147,7 +147,7 @@ test-almalinux10:
 	MOLECULE_SSH_USER=almalinux \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-almalinux9:
 	@echo "$(GREEN)Testing AlmaLinux 9 with QEMU...$(NC)"
@@ -157,7 +157,7 @@ test-almalinux9:
 	MOLECULE_SSH_USER=almalinux \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 test-fedora42:
 	@echo "$(GREEN)Testing Fedora 42 with QEMU...$(NC)"
@@ -167,7 +167,7 @@ test-fedora42:
 	MOLECULE_SSH_USER=fedora \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 	
 test-fedora41:
 	@echo "$(GREEN)Testing Fedora 41 with QEMU...$(NC)"
@@ -177,7 +177,7 @@ test-fedora41:
 	MOLECULE_SSH_USER=fedora \
 	MOLECULE_GROUP=rhel_family \
 	MOLECULE_MEMORY=$(MOLECULE_MEMORY) MOLECULE_CPUS=$(MOLECULE_CPUS) MOLECULE_DISK=$(MOLECULE_DISK) \
-	molecule test
+	molecule test -v
 
 # Linting and syntax checking (same as before)
 lint:
