@@ -4,6 +4,10 @@
   become: true
   gather_facts: true
   tasks:
+    # Add this task at the beginning to ensure handlers run
+    - name: Flush handlers to ensure SSH is restarted
+      ansible.builtin.meta: flush_handlers
+
     - name: Check if ansible user exists
       ansible.builtin.user:
         name: ansible
