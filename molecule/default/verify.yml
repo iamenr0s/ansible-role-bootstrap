@@ -33,16 +33,24 @@
     - name: Check SSH configuration
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^#?PermitRootLogin'
-        line: 'PermitRootLogin no'
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
       check_mode: true
       register: ssh_config_check
+      loop:
+        - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+        - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+        - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
+        - { regexp: '^#?AuthorizedKeysFile', line: 'AuthorizedKeysFile .ssh/authorized_keys' }
+        - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
+        - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
 
     - name: Verify SSH is configured securely
       ansible.builtin.assert:
         that:
-          - not ssh_config_check.changed
-        fail_msg: "SSH configuration is not secure"
+          - not item.changed
+        fail_msg: "SSH configuration {{ item.item.line }} is not secure"
+      loop: "{{ ssh_config_check.results }}"
 
     - name: Check if swap is disabled in fstab
       ansible.builtin.shell: |
