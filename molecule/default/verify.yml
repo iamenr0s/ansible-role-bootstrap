@@ -44,12 +44,12 @@
     - name: Verify SSH is configured securely
       ansible.builtin.assert:
         that:
-          - "sshd_config_content.content | b64decode | regex_search('PermitRootLogin\\s+no')"
-          - "sshd_config_content.content | b64decode | regex_search('PasswordAuthentication\\s+no')"
-          - "sshd_config_content.content | b64decode | regex_search('PubkeyAuthentication\\s+yes')"
-          - "sshd_config_content.content | b64decode | regex_search('AuthorizedKeysFile\\s+\\.ssh/authorized_keys')"
-          - "sshd_config_content.content | b64decode | regex_search('PermitEmptyPasswords\\s+no')"
-          - "sshd_config_content.content | b64decode | regex_search('X11Forwarding\\s+no')"
+          - "'PermitRootLogin no' in sshd_config_content.content | b64decode"
+          - "'PasswordAuthentication no' in sshd_config_content.content | b64decode"
+          - "'PubkeyAuthentication yes' in sshd_config_content.content | b64decode"
+          - "'AuthorizedKeysFile .ssh/authorized_keys' in sshd_config_content.content | b64decode"
+          - "'PermitEmptyPasswords no' in sshd_config_content.content | b64decode"
+          - "'X11Forwarding no' in sshd_config_content.content | b64decode"
         fail_msg: "SSH configuration is not secure"
       # Remove this line: loop: "{{ ssh_config_check.results }}"
 
