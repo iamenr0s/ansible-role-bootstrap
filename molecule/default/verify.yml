@@ -49,11 +49,21 @@
         - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
         - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
 
+    - name: Read SSH configuration
+      ansible.builtin.slurp:
+        src: /etc/ssh/sshd_config
+      register: sshd_config_content
+
     - name: Verify SSH is configured securely
       ansible.builtin.assert:
         that:
-          - not item.changed
-        fail_msg: "SSH configuration {{ item.item.line }} is not secure"
+          - "'PermitRootLogin no' in sshd_config_content.content | b64decode"
+          - "'PasswordAuthentication no' in sshd_config_content.content | b64decode"
+          - "'PubkeyAuthentication yes' in sshd_config_content.content | b64decode"
+          - "'AuthorizedKeysFile .ssh/authorized_keys' in sshd_config_content.content | b64decode"
+          - "'PermitEmptyPasswords no' in sshd_config_content.content | b64decode"
+          - "'X11Forwarding no' in sshd_config_content.content | b64decode"
+        fail_msg: "SSH configuration is not secure"
       loop: "{{ ssh_config_check.results }}"
 
     - name: Check if swap is disabled in fstab
