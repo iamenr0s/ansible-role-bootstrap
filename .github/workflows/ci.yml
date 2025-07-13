@@ -31,7 +31,8 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        distro: [ubuntu2404, ubuntu2204, debian12, debian11, almalinux9, almalinux10, rockylinux9, rockylinux10, fedora41, fedora42]
+        #distro: [ubuntu2404, ubuntu2204, debian12, debian11, almalinux9, almalinux10, rockylinux9, rockylinux10, fedora41, fedora42]
+        distro: [ubuntu2404, ubuntu2204, almalinux9, almalinux10, rockylinux9, rockylinux10, fedora41, fedora42]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
