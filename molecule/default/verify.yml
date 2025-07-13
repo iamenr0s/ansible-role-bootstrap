@@ -21,19 +21,6 @@
           - not ansible_user_check.changed
         fail_msg: "Ansible user was not created"
 
-#  - name: Check if rocky user was removed
-#    ansible.builtin.user:
-#      name: rocky
-#      state: absent
-#     check_mode: true
-#     register: rocky_user_check
-
-#    - name: Verify rocky user was removed
-#      ansible.builtin.assert:
-#        that:
-#          - not rocky_user_check.changed
-#        fail_msg: "Rocky user was not removed"
-
     - name: Check SSH configuration
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
@@ -64,7 +51,7 @@
           - "'PermitEmptyPasswords no' in sshd_config_content.content | b64decode"
           - "'X11Forwarding no' in sshd_config_content.content | b64decode"
         fail_msg: "SSH configuration is not secure"
-      loop: "{{ ssh_config_check.results }}"
+      # Remove this line: loop: "{{ ssh_config_check.results }}"
 
     - name: Check if swap is disabled in fstab
       ansible.builtin.shell: |
