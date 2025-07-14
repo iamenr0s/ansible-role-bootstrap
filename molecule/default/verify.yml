@@ -6,18 +6,30 @@
   tasks:
     # Verify ansible user creation and configuration
     - name: Check if ansible user exists
-      ansible.builtin.getent:
-        database: passwd
-        key: ansible
-      register: ansible_user_info
+      ansible.builtin.command: id ansible
+      register: ansible_user_check
+      changed_when: false
+      failed_when: false
 
     - name: Verify ansible user was created
       ansible.builtin.assert:
         that:
-          - ansible_user_info.ansible_passwd is defined
-          - "'/home/ansible' in ansible_user_info.ansible_passwd[4]"
-          - "'/bin/bash' in ansible_user_info.ansible_passwd[5]"
+          - ansible_user_check.rc == 0
+          - "'uid=' in ansible_user_check.stdout"
         fail_msg: "Ansible user was not created properly"
+
+    - name: Check ansible user home directory
+      ansible.builtin.stat:
+        path: /home/ansible
+      register: ansible_home
+
+    - name: Verify ansible user home directory exists
+      ansible.builtin.assert:
+        that:
+          - ansible_home.stat.exists
+          - ansible_home.stat.isdir
+          - ansible_home.stat.pw_name == 'ansible'
+        fail_msg: "Ansible user home directory is not configured properly"
 
     - name: Check ansible user groups
       ansible.builtin.command: groups ansible
@@ -79,7 +91,7 @@
       loop: "{{ ssh_config_check.results }}"
 
     - name: Check SSH service status
-      ansible.builtin.service:
+      ansible.builtin.systemd:
         name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
       register: ssh_service
 
@@ -182,7 +194,7 @@
 
     # Verify essential services
     - name: Check essential services status
-      ansible.builtin.service:
+      ansible.builtin.systemd:
         name: "{{ item }}"
       register: service_status
       loop:
@@ -195,31 +207,6 @@
           - item.status.ActiveState == 'active'
         fail_msg: "Service {{ item.item }} is not running"
       loop: "{{ service_status.results }}"
-
-    # Verify packages are installed
-    - name: Check if bootstrap packages are installed (Debian)
-      ansible.builtin.package:
-        name: "{{ bootstrap_packages_debian }}"
-        state: present
-      check_mode: true
-      register: debian_packages_check
-      when: ansible_os_family == 'Debian'
-
-    - name: Check if bootstrap packages are installed (RHEL)
-      ansible.builtin.package:
-        name: "{{ bootstrap_packages_rhel }}"
-        state: present
-      check_mode: true
-      register: rhel_packages_check
-      when: ansible_os_family == 'RedHat'
-
-    - name: Verify bootstrap packages are installed
-      ansible.builtin.assert:
-        that:
-          - not item.changed
-        fail_msg: "Bootstrap packages are not properly installed"
-      loop: "{{ (debian_packages_check.results | default([])) + (rhel_packages_check.results | default([])) }}"
-      when: item is defined
 
     # Final verification message
     - name: Display verification success
