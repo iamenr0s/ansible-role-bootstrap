@@ -165,10 +165,13 @@
 
     - name: Check if swap was disabled by bootstrap role
       ansible.builtin.shell: |
+        set -o pipefail
         # Check if fstab has been modified by bootstrap role
         grep -E '^#.*swap' /etc/fstab >/dev/null 2>&1 && echo "bootstrap_applied" || echo "bootstrap_not_applied"
       register: swap_bootstrap_check
       changed_when: false
+      args:
+        executable: /bin/bash
 
     - name: Display swap status for debugging
       ansible.builtin.debug:
@@ -231,10 +234,14 @@
 
     - name: Check for bootstrap sysctl configuration
       ansible.builtin.shell: |
+        set -o pipefail
         grep -r "vm.swappiness" /etc/sysctl.d/ /etc/sysctl.conf 2>/dev/null || echo "not_found"
         grep -r "net.ipv4.ip_forward" /etc/sysctl.d/ /etc/sysctl.conf 2>/dev/null || echo "not_found"
       register: sysctl_config_check
       changed_when: false
+      args:
+        executable: /bin/bash
+# Removed duplicate changed_when key
 
     - name: Display sysctl configuration status
       ansible.builtin.debug:
@@ -293,9 +300,12 @@
 
     - name: Check if overlay module is available
       ansible.builtin.shell: |
+        set -o pipefail
         modinfo overlay >/dev/null 2>&1 && echo "available" || echo "not_available"
       register: overlay_module_available
       changed_when: false
+      args:
+        executable: /bin/bash
 
     - name: Check if overlay module is loaded
       ansible.builtin.command: lsmod
