@@ -417,4 +417,3 @@
     - name: Display verification success
       ansible.builtin.debug:
         msg: "All bootstrap configurations have been verified successfully!"
-

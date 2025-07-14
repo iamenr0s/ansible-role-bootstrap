@@ -77,4 +77,3 @@
         state: present
       when: apt_update_result is succeeded or (fallback_apt_update is defined and fallback_apt_update.rc is defined and fallback_apt_update.rc == 0)
       failed_when: false
-
