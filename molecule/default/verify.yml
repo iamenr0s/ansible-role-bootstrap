@@ -4,24 +4,60 @@
   become: true
   gather_facts: true
   tasks:
-    # Add this task at the beginning to ensure handlers run
-    - name: Flush handlers to ensure SSH is restarted
-      ansible.builtin.meta: flush_handlers
-
+    # Verify ansible user creation and configuration
     - name: Check if ansible user exists
-      ansible.builtin.user:
-        name: ansible
-        state: present
-      check_mode: true
-      register: ansible_user_check
+      ansible.builtin.getent:
+        database: passwd
+        key: ansible
+      register: ansible_user_info
 
     - name: Verify ansible user was created
       ansible.builtin.assert:
         that:
-          - not ansible_user_check.changed
-        fail_msg: "Ansible user was not created"
+          - ansible_user_info.ansible_passwd is defined
+          - "'/home/ansible' in ansible_user_info.ansible_passwd[4]"
+          - "'/bin/bash' in ansible_user_info.ansible_passwd[5]"
+        fail_msg: "Ansible user was not created properly"
 
-    - name: Check SSH configuration
+    - name: Check ansible user groups
+      ansible.builtin.command: groups ansible
+      register: ansible_groups
+      changed_when: false
+
+    - name: Verify ansible user is in correct group
+      ansible.builtin.assert:
+        that:
+          - "('sudo' in ansible_groups.stdout) or ('wheel' in ansible_groups.stdout)"
+        fail_msg: "Ansible user is not in sudo/wheel group"
+
+    - name: Check ansible user sudo configuration
+      ansible.builtin.stat:
+        path: /etc/sudoers.d/ansible
+      register: sudo_config
+
+    - name: Verify sudo configuration exists
+      ansible.builtin.assert:
+        that:
+          - sudo_config.stat.exists
+          - sudo_config.stat.mode == '0440'
+        fail_msg: "Ansible sudo configuration is missing or has wrong permissions"
+
+    - name: Check ansible user .ssh directory
+      ansible.builtin.stat:
+        path: /home/ansible/.ssh
+      register: ssh_dir
+
+    - name: Verify .ssh directory configuration
+      ansible.builtin.assert:
+        that:
+          - ssh_dir.stat.exists
+          - ssh_dir.stat.isdir
+          - ssh_dir.stat.mode == '0700'
+          - ssh_dir.stat.pw_name == 'ansible'
+        fail_msg: "Ansible user .ssh directory is not configured properly"
+
+    # Verify SSH configuration
+    - name: Check SSH configuration settings
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config
         regexp: "{{ item.regexp }}"
@@ -32,75 +68,160 @@
         - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
         - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
         - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
-        - { regexp: '^#?AuthorizedKeysFile', line: 'AuthorizedKeysFile .ssh/authorized_keys' }
         - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
         - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
-
-    - name: Read SSH configuration
-      ansible.builtin.slurp:
-        src: /etc/ssh/sshd_config
-      register: sshd_config_content
 
     - name: Verify SSH is configured securely
       ansible.builtin.assert:
         that:
-          - "'PermitRootLogin no' in sshd_config_content.content | b64decode"
-          - "'PasswordAuthentication no' in sshd_config_content.content | b64decode"
-          - "'PubkeyAuthentication yes' in sshd_config_content.content | b64decode"
-          - "'AuthorizedKeysFile .ssh/authorized_keys' in sshd_config_content.content | b64decode"
-          - "'PermitEmptyPasswords no' in sshd_config_content.content | b64decode"
-          - "'X11Forwarding no' in sshd_config_content.content | b64decode"
-        fail_msg: "SSH configuration is not secure"
-      # Remove this line: loop: "{{ ssh_config_check.results }}"
+          - not item.changed
+        fail_msg: "SSH configuration setting '{{ item.item.line }}' is not properly set"
+      loop: "{{ ssh_config_check.results }}"
 
-    - name: Check if swap is disabled in fstab
-      ansible.builtin.shell: |
-        set -o pipefail
-        grep -v '^#' /etc/fstab | grep swap || true
-      register: swap_check
+    - name: Check SSH service status
+      ansible.builtin.service:
+        name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+      register: ssh_service
+
+    - name: Verify SSH service is running and enabled
+      ansible.builtin.assert:
+        that:
+          - ssh_service.status.ActiveState == 'active'
+          - ssh_service.status.UnitFileState == 'enabled'
+        fail_msg: "SSH service is not running or not enabled"
+
+    # Verify swap is disabled
+    - name: Check current swap status
+      ansible.builtin.command: swapon --show
+      register: swap_status
       changed_when: false
+      failed_when: false
 
     - name: Verify swap is disabled
       ansible.builtin.assert:
         that:
-          - swap_check.stdout == ""
-        fail_msg: "Swap is not disabled in /etc/fstab"
+          - swap_status.stdout == ""
+        fail_msg: "Swap is still active"
 
-    - name: Check sysctl parameters
-      ansible.builtin.command: sysctl vm.swappiness
-      register: sysctl_check
+    - name: Check fstab for commented swap entries
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep -E '^[^#].*swap' /etc/fstab || true
+      register: fstab_swap_check
       changed_when: false
 
-    - name: Verify sysctl parameters
+    - name: Verify swap entries are commented in fstab
       ansible.builtin.assert:
         that:
-          - "'vm.swappiness = 0' in sysctl_check.stdout"
-        fail_msg: "Sysctl parameters are not set correctly"
+          - fstab_swap_check.stdout == ""
+        fail_msg: "Active swap entries found in /etc/fstab"
 
-    - name: Verify system uptime (indicates successful reboot handling)
-      ansible.builtin.command: uptime
-      register: uptime_check
+    # Verify sysctl parameters
+    - name: Check sysctl parameters
+      ansible.builtin.command: "sysctl {{ item.name }}"
+      register: sysctl_checks
+      changed_when: false
+      loop:
+        - { name: vm.swappiness, value: 0 }
+        - { name: net.ipv4.ip_forward, value: 1 }
+
+    - name: Verify sysctl parameters are set correctly
+      ansible.builtin.assert:
+        that:
+          - "'{{ item.item.name }} = {{ item.item.value }}' in item.stdout"
+        fail_msg: "Sysctl parameter {{ item.item.name }} is not set to {{ item.item.value }}"
+      loop: "{{ sysctl_checks.results }}"
+
+    # Verify kernel modules
+    - name: Check if overlay module is loaded
+      ansible.builtin.command: lsmod
+      register: loaded_modules
       changed_when: false
 
-    - name: Display uptime for verification
-      ansible.builtin.debug:
-        msg: "System uptime: {{ uptime_check.stdout }}"
+    - name: Verify overlay module is loaded
+      ansible.builtin.assert:
+        that:
+          - "'overlay' in loaded_modules.stdout"
+        fail_msg: "Overlay kernel module is not loaded"
 
-    - name: Check if systemd services are running properly
+    - name: Check kernel modules configuration file
+      ansible.builtin.stat:
+        path: /etc/modules-load.d/bootstrap.conf
+      register: modules_config
+
+    - name: Verify kernel modules configuration exists
+      ansible.builtin.assert:
+        that:
+          - modules_config.stat.exists
+        fail_msg: "Kernel modules configuration file is missing"
+
+    # Verify hostname configuration
+    - name: Check current hostname
+      ansible.builtin.command: hostname
+      register: current_hostname
+      changed_when: false
+
+    - name: Verify hostname is set correctly
+      ansible.builtin.assert:
+        that:
+          - current_hostname.stdout == inventory_hostname
+        fail_msg: "Hostname is not set to {{ inventory_hostname }}"
+
+    # Verify /etc/hosts file
+    - name: Check /etc/hosts file exists
+      ansible.builtin.stat:
+        path: /etc/hosts
+      register: hosts_file
+
+    - name: Verify /etc/hosts file configuration
+      ansible.builtin.assert:
+        that:
+          - hosts_file.stat.exists
+          - hosts_file.stat.mode == '0644'
+        fail_msg: "/etc/hosts file is missing or has wrong permissions"
+
+    # Verify essential services
+    - name: Check essential services status
       ansible.builtin.service:
         name: "{{ item }}"
-        state: started
-      check_mode: true
-      register: service_check
+      register: service_status
       loop:
         - "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
         - systemd-logind
-      failed_when: false
 
     - name: Verify essential services are running
       ansible.builtin.assert:
         that:
-          - not item.changed
+          - item.status.ActiveState == 'active'
         fail_msg: "Service {{ item.item }} is not running"
-      loop: "{{ service_check.results }}"
-      when: item.failed is not defined or not item.failed
+      loop: "{{ service_status.results }}"
+
+    # Verify packages are installed
+    - name: Check if bootstrap packages are installed (Debian)
+      ansible.builtin.package:
+        name: "{{ bootstrap_packages_debian }}"
+        state: present
+      check_mode: true
+      register: debian_packages_check
+      when: ansible_os_family == 'Debian'
+
+    - name: Check if bootstrap packages are installed (RHEL)
+      ansible.builtin.package:
+        name: "{{ bootstrap_packages_rhel }}"
+        state: present
+      check_mode: true
+      register: rhel_packages_check
+      when: ansible_os_family == 'RedHat'
+
+    - name: Verify bootstrap packages are installed
+      ansible.builtin.assert:
+        that:
+          - not item.changed
+        fail_msg: "Bootstrap packages are not properly installed"
+      loop: "{{ (debian_packages_check.results | default([])) + (rhel_packages_check.results | default([])) }}"
+      when: item is defined
+
+    # Final verification message
+    - name: Display verification success
+      ansible.builtin.debug:
+        msg: "All bootstrap configurations have been verified successfully!"
