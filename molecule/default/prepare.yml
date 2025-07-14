@@ -24,7 +24,10 @@
       ignore_errors: true
 
     - name: Fallback apt update with different approach
-      ansible.builtin.command: apt-get update
+      ansible.builtin.apt:
+        update_cache: true
+        force_apt_get: true
+        cache_valid_time: 0  # Force update even if cache is recent
       when: 
         - ansible_os_family == 'Debian'
         - apt_update_result is failed

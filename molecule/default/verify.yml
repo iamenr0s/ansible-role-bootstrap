@@ -118,6 +118,7 @@
 
     # Fallback SSH verification if sshd -T fails
     - name: Fallback SSH configuration check
+      when: sshd_test_config.rc != 0
       block:
         - name: Check SSH configuration file directly
           ansible.builtin.shell: |
@@ -142,7 +143,7 @@
               - "'PermitRootLogin no' in ssh_config_check.stdout or 'PermitRootLogin without-password' in ssh_config_check.stdout or 'permitrootlogin no' in ssh_config_check.stdout.lower() or 'permitrootlogin without-password' in ssh_config_check.stdout.lower()"
             fail_msg: "PermitRootLogin is not set to a secure value (no or without-password) in SSH configuration"
             success_msg: "SSH configuration appears to be secure (basic check)"
-      when: sshd_test_config.rc != 0
+          when: sshd_test_config.rc != 0
 
     - name: Check SSH service status
       ansible.builtin.systemd:
