@@ -77,3 +77,10 @@
         state: present
       when: apt_update_result is succeeded or (fallback_apt_update is defined and fallback_apt_update.rc is defined and fallback_apt_update.rc == 0)
       failed_when: false
+
+    - name: Ensure SSH service is enabled and started
+      ansible.builtin.service:
+        name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+        state: started
+        enabled: true
+      failed_when: false
