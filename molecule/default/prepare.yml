@@ -11,10 +11,43 @@
     - name: Gather facts
       ansible.builtin.setup:
 
-    - name: Update package cache (Debian-based)
+    - name: Update package cache (Debian-based) with retries
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
+        force_apt_get: true
+      when: ansible_os_family == 'Debian'
+      retries: 3
+      delay: 10
+      register: apt_update_result
+      until: apt_update_result is succeeded
+      ignore_errors: true
+
+    - name: Fallback apt update with different approach
+      ansible.builtin.command: apt-get update
+      when: 
+        - ansible_os_family == 'Debian'
+        - apt_update_result is failed
+      retries: 2
+      delay: 15
+      register: fallback_apt_update
+      failed_when: false
+      changed_when: false
+
+    - name: Check if apt is working
+      ansible.builtin.command: apt-cache policy
+      when: ansible_os_family == 'Debian'
+      register: apt_check
+      failed_when: false
+      changed_when: false
+
+    - name: Display apt status for debugging
+      ansible.builtin.debug:
+        msg: |
+          APT Update Status:
+          - Initial update: {{ 'SUCCESS' if apt_update_result is succeeded else 'FAILED' }}
+          - Fallback update: {{ 'SUCCESS' if (fallback_apt_update is defined and fallback_apt_update.rc is defined and fallback_apt_update.rc == 0) else 'FAILED' if fallback_apt_update is defined else 'SKIPPED' }}
+          - APT working: {{ 'YES' if (apt_check is defined and apt_check.rc is defined and apt_check.rc == 0) else 'NO' if apt_check is defined else 'UNKNOWN' }}
       when: ansible_os_family == 'Debian'
 
     - name: Install Python for Ansible (if needed)
@@ -31,3 +64,14 @@
           fi
         fi
       changed_when: false
+      failed_when: false
+
+    - name: Ensure essential packages are available
+      ansible.builtin.package:
+        name:
+          - python3
+          - sudo
+        state: present
+      when: apt_update_result is succeeded or (fallback_apt_update is defined and fallback_apt_update.rc is defined and fallback_apt_update.rc == 0)
+      failed_when: false
+
