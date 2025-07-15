@@ -10,7 +10,7 @@ platforms:
   - name: "${MOLECULE_DISTRO:-ubuntu2204}"
     image_url: "${MOLECULE_IMAGE_URL}"
     image_checksum: "${MOLECULE_IMAGE_CHECKSUM}"
-    network_ssh_port: 2223
+    network_ssh_port: "${MOLECULE_NETWORK_SSH_PORT:-2222}"
     vm_cpus: 4 # optional, default is 1
     vm_memory: 2048 # optional, default is 512
     vm_disk: 20G # optional, default is 8G
