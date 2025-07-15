@@ -47,8 +47,8 @@ jobs:
       - name: Test with Molecule QEMU
         run: make test-${{ matrix.distro }}
         env:
-          MOLECULE_MEMORY: 2048
+          MOLECULE_MEMORY: 4096
           MOLECULE_CPUS: 2
-          MOLECULE_DISK: 8G
+          MOLECULE_DISK: 20G
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
