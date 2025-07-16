@@ -6,7 +6,7 @@
   tasks:
     - name: Wait for system to become reachable
       ansible.builtin.wait_for_connection:
-        timeout: 300
+        timeout: 900  # Increased from 300 to 900 seconds (15 minutes)
 
     - name: Gather facts
       ansible.builtin.setup:
@@ -78,6 +78,18 @@
       when: apt_update_result is succeeded or (fallback_apt_update is defined and fallback_apt_update.rc is defined and fallback_apt_update.rc == 0)
       failed_when: false
 
+    - name: Verify SSH user exists (RHEL-based systems)
+      ansible.builtin.command: "id {{ ansible_user }}"
+      register: user_check
+      failed_when: false
+      changed_when: false
+      when: ansible_os_family == 'RedHat'
+      
+    - name: Display SSH user status
+      ansible.builtin.debug:
+        msg: "SSH user '{{ ansible_user }}' status: {{ 'EXISTS' if user_check.rc == 0 else 'DOES NOT EXIST' }}"
+      when: ansible_os_family == 'RedHat'
+      
     - name: Ensure SSH service is running and enabled
       ansible.builtin.service:
         name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"

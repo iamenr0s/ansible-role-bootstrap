@@ -20,6 +20,12 @@ provisioner:
   name: ansible
   env:
     ANSIBLE_FORCE_COLOR: "${MOLECULE_ANSIBLE_COLOR:-true}"
+  config_options:
+    defaults:
+      retry_files_enabled: true
+      host_key_checking: false
+      connection_retries: 10
+      connection_retry_sleep: 15
   options:
     vvv: "${MOLECULE_VERBOSE:-false}"
 verifier:
